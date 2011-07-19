@@ -44,6 +44,6 @@ pep8:
 	done; )
 
 clean:
-		@( for FILE in `find . -name *.pyc`; do \
-			rm -f $$FILE; \
-		done; )
+	@( for FILE in `find . -name *.pyc`; do \
+		rm -f $$FILE; \
+	done; )
