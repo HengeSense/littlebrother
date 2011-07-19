@@ -1,27 +1,27 @@
 
 server {
-	listen   80 default;
- 	server_name  malmash.com;
-	
-	access_log  /var/log/nginx/localhost.access.log;
+    listen   80 default;
+    server_name  malmash.com;
 
-	location / {
-		root   /var/www/littlebrother/html/;
-		index  index.html index.htm;
-	}
+    access_log  /var/log/nginx/localhost.access.log;
 
-	#error_page  404  /404.html;
-	#error_page  500 502 503 504  /50x.html;
-	
-	# proxy API calls to memcached first
-	location /api {
+    location / {
+        root   /var/www/littlebrother/html/;
+        index  index.html index.htm;
+    }
+
+    #error_page  404  /404.html;
+    #error_page  500 502 503 504  /50x.html;
+
+    # proxy API calls to memcached first
+    location /api {
         set $memcached_key "api:$args";
         memcached_pass     127.0.0.1:11211;
         default_type       application/json;
         error_page         404 500 502 = @api_fallback;
-	}
+    }
 
-	# proxy API calls rejected by memcached to WSGI server
+    # proxy API calls rejected by memcached to WSGI server
     location @api_fallback {
         proxy_pass http://127.0.0.1:8000;
     }
@@ -38,18 +38,21 @@ server {
     location ~ /.hg/ {
         deny  all;
     }
+}
 
-    # wiki setup
-    location /wiki {
-        alias /var/www/wiki/;
+server {
+    server_name wiki.malmash.com;
+
+    location / {
+        root /var/www/wiki;
         index index.php;
     }
 
-    # php for wiki
-    location ~ \.php$ {
-        include fastcgi_params;
-        fastcgi_pass 127.0.0.1:9000;
-        fastcgi_param SCRIPT_FILENAME /var/www/$fastcgi_script_name;
-    }
+
+   location ~ \.php$ {
+       include fastcgi_params;
+       fastcgi_pass 127.0.0.1:9000;
+       fastcgi_param SCRIPT_FILENAME /var/www/wiki/$fastcgi_script_name;
+   }
 }
 
