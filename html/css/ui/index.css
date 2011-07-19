@@ -1,0 +1,32 @@
+
+#info_block {
+	width: 100%;
+	text-align: center;
+}
+
+#stats_block {
+	padding-top: 1em;
+	padding-bottom: 1em;
+	text-align: center;
+}
+
+#copy {
+	text-align: center;
+}
+
+#privacy {
+	width: 50%;
+	margin-left: auto;
+	margin-right: auto;
+	display: none;
+}
+
+#privacy p {
+	text-align: left;
+}
+
+#links {
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+}

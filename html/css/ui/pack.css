@@ -1,0 +1,124 @@
+
+#broname {
+	text-align: center;
+	font-size: 2em;
+	padding-bottom: 1em;
+}
+
+#broname > div {
+	display: inline-block;
+}
+
+#broname .profile_link {
+	width: 30px;
+	height: 30px;
+}
+
+#bropack {
+	padding: 0 2em;
+}
+
+#bropack .profile_link {
+	width: 20px;
+	height: 20px;
+}
+
+#bropack a {
+	vertical-align: middle;
+}
+
+#level_num {
+	margin-left: 5px;
+	display: inline;
+}
+
+#buttons_block {
+	text-align: center;
+}
+
+.hidden_level {
+	opacity: 0;
+}
+
+.leaf {
+	margin-right: 1em;
+}
+
+.lv1 {
+}
+
+.lv2 {
+}
+
+.lv2 a {
+	opacity: 0.7;
+}
+
+.front a {
+	opacity: 1 !important;
+}
+
+.s1 {
+	line-height: 190%;
+	font-size: 1.3em;
+}
+
+.s2 {
+	line-height: 180%;
+	font-size: 1.4em;
+}
+
+.s3 {
+	line-height: 170%;
+	font-size: 1.5m;
+}
+
+.s4 {
+	line-height: 160%;
+	font-size: 1.6em;
+}
+
+.s5 {
+	line-height: 150%;
+	font-size: 1.7em;
+}
+
+.s6 {
+	line-height: 140%;
+	font-size: 1.8em;
+}
+
+.s7 {
+	line-height: 130%;
+	font-size: 1.9em;
+}
+
+.s8 {
+	line-height: 120%;
+	font-size: 2.0em;
+}
+
+.s9 {
+	line-height: 110%;
+	font-size: 2.1em;
+}
+
+.s10 {
+	line-height: 100%;
+	font-size: 2.2em;
+}
+
+#connections_pattern_block {
+	width: 100%;
+	text-align: center;
+	padding: 1em 0em;
+}
+
+#connections_pattern {
+	width: 40%;
+}
+
+#connections_loading {
+	display: none;
+	padding: 10px 0px;
+}

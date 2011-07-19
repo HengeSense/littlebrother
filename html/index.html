@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC 
+	"-//W3C//DTD XHTML 1.0 Transitional//EN" 
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+	
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta 
+			http-equiv="Content-Type" 
+			content="text/html; charset=UTF-8" />
+			
+		<title>
+			Малая элетронно-счётная машина</title>
+			
+		<link 
+			rel="stylesheet" 
+			type="text/css" 
+			href="/css/jquery-ui-1.8.13.custom.css" />
+		<link 
+			rel="stylesheet" 
+			type="text/css" 
+			href="/css/ui/common.css" />
+		<link 
+			rel="stylesheet" 
+			type="text/css" 
+			href="/css/ui/index.css" />
+		<script 
+			type="text/javascript" 
+			src="/js/jquery-1.6.1.min.js"></script>
+		<script 
+			type="text/javascript" 
+			src="/js/jquery-ui-1.8.13.custom.min.js"></script>
+		<script 
+			type="text/javascript" 
+			src="/js/jquery.littlebrother.proto.js"></script>
+		<script 
+			type="text/javascript" 
+			src="/js/ui/common.js"></script>
+		<script 
+			type="text/javascript" 
+			src="/js/ui/messages.js"></script>
+		<script 
+			type="text/javascript" 
+			src="/js/ui/query.js"></script>
+		<script 
+			type="text/javascript" 
+			src="/js/ui/index.js"></script>
+		<script 
+			type="text/javascript">
+			$(document).ready(function() {
+				initIndexUI($(document));
+			});
+		</script>
+		<noscript>
+			<meta 
+				http-equiv="refresh" 
+				content="0;url=/noscript.html" />
+		</noscript>
+	</head>
+
+	<body>
+		<div id="banner_block">
+			<img 
+				src="/images/banner_200x100.png" 
+				alt="banner image" />
+		</div>
+		
+		<div id="query_block">
+			<form 
+				id="query_form" 
+				action="">
+				
+				<input 
+					id="query" 
+					value="Напечатай в меня" 
+					type="text" 
+					autocomplete="off" />
+				<button 
+					id="submit">Нажми меня</button>
+			</form>
+		</div>
+		
+		<div id="errors"></div>
+		
+		<div id="info_block">
+			<div id="privacy">
+				<p>
+				1) We do not collect any personal information when you are 
+				visiting this site.<br />
+				2) We do not control the content of sites that appear in our 
+				search results. Our search results simply reflect what's 
+				already on the web.
+				</p>
+				<p>
+				If you have any questions about this Privacy Policy, feel 
+				free to <a href="mailto:fyodor@malmash.com">contact</a> us 
+				by e-mail.
+				</p>
+			</div>
+		</div>
+		
+		<div id="stats_block">
+			<span class="goggles">
+				Имён:&nbsp;<span id="total_names"></span>
+			</span>
+			<br/>
+			<span class="goggles">
+				Организаций:&nbsp;<span id="total_orgs"></span>
+			</span>
+			<br/>
+			<span class="goggles">
+				Верхнее имя:&nbsp;<span id="top_name"></span>
+			</span>
+			<br/>
+			<span class="goggles">
+				Нижнее имя:&nbsp;<span id="bottom_name"></span>
+			</span>
+			<br/>
+			<span class="goggles">
+				Верхняя организация:&nbsp;<span id="top_org"></span>
+			</span>
+			<br/>
+			<span class="goggles">
+				Нижняя организация:&nbsp;<span id="bottom_org"></span>
+			</span>
+			<br/>
+			<span class="goggles">
+				Всего ссылок:&nbsp;<span id="total_urls"></span>
+			</span>
+			<br/>
+			<span class="goggles">
+				Всего записей:&nbsp;<span id="total_records"></span>
+			</span>
+			<br/>
+		</div>
+		
+		<div id="links">
+			<a href="http://wiki.malmash.com">Wiki</a>
+			<a href="https://github.com/trunk">Git</a>
+		</div>
+		<div id="copy">
+			<p>
+				© 2011 ООО «Русские счётные машины»
+			</p>
+		</div>
+	</body>
+</html>

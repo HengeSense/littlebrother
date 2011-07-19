@@ -1,0 +1,48 @@
+
+#nav {
+	width: 60%;
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+	padding-top: 1em;
+}
+
+#entries .pack_link {
+	width: 30px;
+	height: 30px;
+}
+
+#entries .names, #entries .orgs {
+	font-size: 2em;
+}
+
+#entries ul {
+	padding-left: 0;
+}
+
+#entries li {
+	list-style-type: none;
+	padding-top: 1em;
+	text-align: center;
+}
+
+#entries_block {
+	width: 50%;
+	margin-left: auto;
+	margin-right: auto;
+	padding-right: 30px; /* size of .pack_link button */
+}
+
+#entries_loading {
+	padding-top: 1em;
+}
+
+#intro {
+	width: 50%;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#intro p {
+	text-align: justify;
+}

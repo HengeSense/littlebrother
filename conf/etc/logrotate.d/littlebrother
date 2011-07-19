@@ -1,0 +1,10 @@
+/tmp/*.screenlog {
+    rotate 5
+    daily
+    missingok
+    copytruncate
+    nocreate
+    nomail
+    noolddir
+    compress
+}

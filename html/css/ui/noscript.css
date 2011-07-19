@@ -1,0 +1,16 @@
+ul {
+	margin-bottom: 2em;
+}
+
+li {
+	list-style-type: none;
+}
+
+li img {
+	border: 0px;
+	margin-top: 2em;
+}
+
+li p {
+	vertical-align: middle;
+}

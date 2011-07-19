@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC 
+	"-//W3C//DTD XHTML 1.0 Transitional//EN" 
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta 
+			http-equiv="Content-Type" 
+			content="text/html; charset=UTF-8" />
+		<title>
+			Характеристика:&nbsp;</title>
+		
+		<link 
+			rel="stylesheet" 
+			type="text/css" 
+			href="/css/jquery-ui-1.8.13.custom.css" />
+		<link 
+			rel="stylesheet" 
+			type="text/css" 
+			href="/css/ui/common.css" />
+		<link 
+			rel="stylesheet" 
+			type="text/css" 
+			href="/css/ui/profile.css" />
+		<script 
+			type="text/javascript" 
+			src="/js/jquery-1.6.1.min.js"></script>
+		<script 
+			type="text/javascript" 
+			src="/js/jquery-ui-1.8.13.custom.min.js"></script>
+		<script 
+			type="text/javascript" 
+			src="/js/jquery.littlebrother.proto.js"></script>
+		<script 
+			type="text/javascript" 
+			src="/js/ui/common.js"></script>
+		<script 
+			type="text/javascript" 
+			src="/js/ui/messages.js"></script>
+		<script 
+			type="text/javascript" 
+			src="/js/ui/query.js"></script>
+		<script 
+			type="text/javascript" 
+			src="/js/ui/profile.js"></script>
+		<script 
+			type="text/javascript">
+			$(document).ready(function() {
+				initProfileUI($(document));
+			});
+		</script>
+		<noscript>
+			<meta 
+				http-equiv="refresh" 
+				content="0;url=/noscript.html" />
+		</noscript>
+	</head>
+	
+	<body>
+		<div id="header_block">
+			<div id="header_row">
+				<div id="small_banner_block">
+					<a href="/">
+						<button id="home">
+							На главную</button>
+					</a>
+				</div>
+				
+				<div id="query_block">
+					<form 
+						id="query_form" 
+						action="/profile.html" 
+						method="get">
+						
+						<input 
+							id="query" 
+							name="bros" 
+							value="Напечатай в меня" 
+							type="text" 
+							autocomplete="off" />
+						<button 
+							id="submit">Нажми меня</button>
+					</form>
+				</div>
+			</div>
+		</div>
+		
+		<div id="errors"></div>
+		
+		<div id="profile_block">
+			<div id="broname"></div>
+			<div id="fuzzynames_block">
+				<span id="fuzzynames_title">
+					Не оно? Попробуйте похожее:
+				</span>
+				<br />
+				<div id="fuzzynames"></div>
+			</div>
+			
+			<div id="connections_nav_block">
+				<div id="connections_nav">
+					<button 
+						id="connections_prev"
+						title="Предыдущая страница связей">&nbsp;</button>
+					<button 
+						id="connections_next"
+						title="Следующая страница связей">&nbsp;</button>
+				</div>
+				
+				<div id="connections_type">
+					<input 
+						type="radio" 
+						id="show_all" 
+						name="connections_type"/>
+					<label 
+						for="show_all"
+						title="Показать все связи">Все</label>
+					<input 
+						type="radio" 
+						id="show_names" 
+						name="connections_type"/>
+					<label 
+						for="show_names"
+						title="Показать связи с людьми">Люди</label>
+					<input 
+						type="radio" 
+						id="show_orgs" 
+						name="connections_type"/>
+					<label 
+						for="show_orgs"
+						title="Показать связи с организациями">Организации</label>
+					</div>
+			</div>
+			
+			<div id="urls_nav">
+				<button 
+					id="urls_prev"
+					title="Предыдущая страница упоминаний">&nbsp;</button>
+				<button 
+					id="urls_next"
+					title="Следующая страница упоминаний">&nbsp;</button>
+			</div>
+			
+			<div>
+				<span id="connections_pattern_block">
+					<input 
+						id="connections_pattern" 
+						value="Поиск по связям" 
+						type="text" 
+						autocomplete="off" />
+				</span>
+				
+				<span id="urls_pattern_block">
+					<input 
+						id="titles_pattern" 
+						value="Поиск по упоминаниям" 
+						type="text" 
+						autocomplete="off" />
+				</span>
+			</div>
+			
+			<div id="connections_block">
+				<div id="connections_errors"></div>
+				<div id="broconnections"></div>
+			</div>
+			
+			<div id="urls_block">
+				<div id="urls_errors"></div>
+				<div id="brolinks"></div>
+			</div>
+		</div>
+	</body>
+</html>

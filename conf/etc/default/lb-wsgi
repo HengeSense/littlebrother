@@ -1,0 +1,10 @@
+START=yes
+
+# Which user runs? (default: www-data)
+
+EXEC_AS_USER=www-data
+
+# Host and TCP port for WSGI-Listener (default: 127.0.0.1:8000)
+
+WSGI_HOST=127.0.0.1
+WSGI_PORT=8000
