@@ -29,7 +29,8 @@ PEP8_SRC=${SRC} \
 	littlebrother/web/wsgi_fapws3.py \
 
 
-default: pep8 tests
+default: all
+all: pep8 tests
 
 tests:
 	@( for FILE in ${SRC}; do \
