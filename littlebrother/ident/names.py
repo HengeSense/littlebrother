@@ -1,6 +1,7 @@
 #-*- coding: UTF-8
 
 from morphy.contrib import lastnames_ru
+import config
 import pymorphy
 import re
 
@@ -25,8 +26,8 @@ def morph_word(string):
 
 class Morph(object):
 	# FIXME: should be in config
-	dicts_dir = 'dicts/ru/shelve45' 
-	dicts_type = 'shelve'
+	dicts_dir = config.dicts.get('path', 'dicts/ru/shelve45')
+	dicts_type = config.dicts.get('backend', 'shelve')
 	
 	def __init__(self):
 		super(Morph, self).__init__()
