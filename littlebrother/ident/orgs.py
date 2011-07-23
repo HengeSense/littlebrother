@@ -16,7 +16,9 @@ companies = re.compile(ur'''\b('''
 
 
 def identities(plain_text):
-	return [ re.sub(ur'["«»]', '', ident.strip().upper()) for (_, ident) in companies.findall(plain_text) ]
+	return [ 
+		re.sub(ur'["«»]', '', ident.strip().upper()) 
+		for (_, ident) in companies.findall(plain_text) ]
 
 if __name__ == '__main__':
 	import unittest

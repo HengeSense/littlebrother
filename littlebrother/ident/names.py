@@ -21,11 +21,10 @@ def tokenize(string):
 
 def morph_word(string):
 	'''Prepares name for morph analysis'''
-	return string.replace(u'ё', u'е').upper()
+	return string.upper().replace(u'Ё', u'Е')
 
 
 class Morph(object):
-	# FIXME: should be in config
 	dicts_dir = config.dicts.get('path', 'dicts/ru/shelve45')
 	dicts_type = config.dicts.get('backend', 'shelve')
 	
