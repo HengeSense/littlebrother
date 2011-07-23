@@ -6,7 +6,7 @@ import ident.orgs
 
 gather = {
 	'providers' : ( 
-		(ident.names, 'names'), 
-		(ident.orgs, 'orgs'), 
+		(ident.names.identities, 'names'), 
+		(ident.orgs.identities, 'orgs'), 
 	)
 }

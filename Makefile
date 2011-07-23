@@ -25,8 +25,13 @@ SRC= \
 	littlebrother/web/application.py \
 
 PEP8_SRC=${SRC} \
+	littlebrother/ident/config.py \
+	littlebrother/db/config.py \
 	littlebrother/db/prepare.py \
+	littlebrother/crawling/config.py \
+	littlebrother/api/config.py \
 	littlebrother/web/wsgi_fapws3.py \
+	littlebrother/web/config.py \
 
 
 default: all

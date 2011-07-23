@@ -27,13 +27,13 @@ def parse_file(filep, provider):
 
 		ret = []
 		if node.text:
-			identities = provider.identities(node.text)
+			identities = provider(node.text)
 			xpath = doc.getpath(node)
 			for identity in identities:
 				ret.append((identity, xpath))
 		
 		if node.tail:
-			identities = provider.identities(node.tail)
+			identities = provider(node.tail)
 			xpath = doc.getpath(node.getparent())
 			for identity in identities:
 				ret.append((identity, xpath))
@@ -104,7 +104,10 @@ if __name__ == '__main__':
 		filename = 'samples/test.html'
 	
 		def testIt(self):
-			title, identities = parse_file(open(self.filename, 'r'), ident.names)
+			title, identities = parse_file(
+				open(self.filename, 'r'), 
+				ident.names.identities)
+			
 			assert(title)
 #			for identity, xpath in identities:
 #				print identity, xpath
