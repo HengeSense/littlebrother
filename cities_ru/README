@@ -1,0 +1,5 @@
+Will download cities lists from ru.wikipea.org.
+See http://ru.wikipedia.org/wiki/Шаблон:Города_России.
+
+xsl/extract.xsl is for extracting cities/regions from Wikipedia pages.
+makedb.py will create db/* shelve-databases for use by littlebrother/ident/geo.

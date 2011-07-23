@@ -5,6 +5,7 @@ SRC= \
 	littlebrother/ident/metaphone_ru.py \
 	littlebrother/ident/names.py \
 	littlebrother/ident/orgs.py \
+	littlebrother/ident/geo.py \
 	\
 	littlebrother/rank/distance.py \
 	littlebrother/rank/weight.py \
@@ -32,6 +33,8 @@ PEP8_SRC=${SRC} \
 	littlebrother/api/config.py \
 	littlebrother/web/wsgi_fapws3.py \
 	littlebrother/web/config.py \
+	\
+	cities_ru/makedb.py \
 
 
 default: all
@@ -40,16 +43,16 @@ all: pep8 tests
 tests:
 	@( for FILE in ${SRC}; do \
 		echo "Running tests for $$FILE"; \
-		PYTHONPATH=${PYTHONPATH} ${PYTHON} $$FILE; \
+		PYTHONPATH=${PYTHONPATH} ${PYTHON} "$$FILE"; \
 	done; )
 
 pep8:
 	@( for FILE in ${PEP8_SRC}; do \
 		echo "Running pep8 check for $$FILE"; \
-		pep8 ${PEP8_ARGS} $$FILE; \
+		pep8 ${PEP8_ARGS} "$$FILE"; \
 	done; )
 
 clean:
 	@( for FILE in `find . -name *.pyc`; do \
-		rm -f $$FILE; \
+		rm -f "$$FILE"; \
 	done; )
