@@ -85,7 +85,7 @@ class Morph(object):
 
 
 def rate_last_name(morph, word, gender_tag, case):
-	'''Give rating to word as for lastname. bigger is better'''
+	'''Give rating to word as for lastname. Bigger is better'''
 	
 	info = morph.get_graminfo(morph_word(word))
 	rate = 0

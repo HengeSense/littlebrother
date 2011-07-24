@@ -21,16 +21,20 @@ finder = re.compile(ur'([А-ЯЁ][а-яёА-ЯЁ\-]+)', re.UNICODE)
 
 
 def geo_key(word):
+	'''Covert word to shelve key as created by makedb.py'''
 	return word.upper().replace(u'Ё', u'Е').encode(
 		config.geo_db.get('encoding', 'UTF-16'))
 
 
 def geo_value(value):
+	'''Convert shelve value back to Python (unicode) object'''
 	return unicode(value.decode(
 		config.geo_db.get('encoding', 'UTF-16')))
 
 
 def cities(plain_text):
+	'''Extract cities'''
+	
 	candidates = finder.findall(plain_text)
 	if not candidates:
 		return []
@@ -46,6 +50,11 @@ def cities(plain_text):
 
 
 def regions(plain_text):
+	'''
+	Extract regions.
+	Also do lookup for city's region if found any in plain_text.
+	'''
+	
 	candidates = finder.findall(plain_text)
 	if not candidates:
 		return []

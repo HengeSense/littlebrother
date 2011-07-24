@@ -8,6 +8,12 @@ source_encoding = 'UTF-8'
 
 
 def collect_cities(fp):
+	'''
+	Return dictionary with
+	regions : [list of cities in that region]
+	cities : [list of cities] 
+	'''
+	
 	regions = {}
 	cities = set()
 	
@@ -30,6 +36,11 @@ def collect_cities(fp):
 
 
 def decline(geo):
+	'''
+	Decline geo-location in all cases.
+	Москва -> Москва, Москвы, Москве...
+	'''
+	
 	location = geo.upper().replace(u'Ё', u'Е')
 	words = location.split(' ')
 	
@@ -45,6 +56,8 @@ def decline(geo):
 
 
 def save_cities(cities, cities_db):
+	'''Store cities list (and their cases) to cities_db'''
+	
 	d = shelve.open(cities_db)
 	
 	for city in cities:
@@ -56,6 +69,8 @@ def save_cities(cities, cities_db):
 
 
 def save_regions(regions, regions_db):
+	'''Store regions list (and their cases) to regions_db'''
+	
 	d = shelve.open(regions_db)
 	
 	regions_list = [ region for region in regions ]
@@ -70,6 +85,15 @@ def save_regions(regions, regions_db):
 
 
 def save_world(world, world_db):
+	'''
+	Store regions-cities map to world_db.
+	Regions stored with keys: reg-REGIONNAME.
+	Cities stored with keys: cit-CITYNAME.
+	
+	Mapping:
+	Region -> List of cities
+	City -> Region
+	'''
 	
 	def region_key(region):
 		return r'reg-%r' % (region.upper().encode(adapter.db_encoding), )
