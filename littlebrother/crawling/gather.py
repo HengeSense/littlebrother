@@ -211,14 +211,12 @@ def collect(text):
 	'''Collect records from text'''
 	
 	title = None
-	identities = []
-	for provider, tag in config.gather.get('providers', ()):
-		# FIXME: pass all providers to parse_file to avoid multiple parsing
-		title, idents = html.lxmlp.parse_file(StringIO.StringIO(text), provider)
-		if title:
-			title = title.strip(u' \t\n\r')
-		
-		identities += [ (ident, xpath, tag) for (ident, xpath) in idents ]
+	providers = config.gather.get('providers', ())
+	
+	title, identities = html.lxmlp.parse_file(StringIO.StringIO(text), providers)
+	
+	if title:
+		title = title.strip(u' \t\n\r')
 	
 	measured = {}
 	for index, (identity, xpath, tag) in enumerate(identities):
@@ -466,9 +464,9 @@ if __name__ == '__main__':
 			title, gathered = collect(open(self.filename, 'rt').read())
 			assert(title)
 			assert(len(gathered) > 0)
-			for ((ident, tag, other, other_tag), distance) in gathered.iteritems():
-#				print identity, other, rank
-				assert(ident)
+			for ((identity, tag, other, other_tag), distance) in gathered.iteritems():
+#				print identity, other
+				assert(identity)
 				assert(tag)
 				assert(other)
 				assert(other_tag)
