@@ -2,3 +2,5 @@
 .project
 .cproject
 .pydevproject
+cities_ru/db
+cities_ru/source

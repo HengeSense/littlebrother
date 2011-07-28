@@ -24,7 +24,9 @@ def add_record(database, (title1, tag1), (title2, tag2), ref, ref_title, distanc
 	def get_ident(title, tag):
 		ident = database.query(db.sqldb.Ident)\
 			.filter(db.sqldb.Ident.title == title)\
+			.filter(db.sqldb.Ident.tag == tag)\
 			.first()
+		
 		if ident == None:
 			ident = db.sqldb.Ident(title, tag)
 			
@@ -33,6 +35,7 @@ def add_record(database, (title1, tag1), (title2, tag2), ref, ref_title, distanc
 				ident.metaphone = metaphone
 			
 			database.add(ident)
+		
 		return ident
 	
 	def get_node(ident1, ident2, url, distance):
@@ -41,10 +44,13 @@ def add_record(database, (title1, tag1), (title2, tag2), ref, ref_title, distanc
 			.filter(db.sqldb.Node.ident_2_id == ident2.id)\
 			.filter(db.sqldb.Node.url_id == url.id)\
 			.first()
+		
 		added = (node == None)
+		
 		if node == None:
 			node = db.sqldb.Node(ident1, ident2, url, distance)
 			database.add(node)
+		
 		return (added, node)
 	
 	def get_link(ident1, ident2, ranked):
@@ -52,18 +58,22 @@ def add_record(database, (title1, tag1), (title2, tag2), ref, ref_title, distanc
 			.filter(db.sqldb.Link.ident_1_id == ident1.id)\
 			.filter(db.sqldb.Link.ident_2_id == ident2.id)\
 			.first()
+		
 		if link == None:
 			link = db.sqldb.Link(ident1, ident2)
 			database.add(link)
+		
 		return link
 	
 	def get_url(ref):
 		url = database.query(db.sqldb.Url)\
 			.filter(db.sqldb.Url.ref == ref)\
 			.first()
+		
 		if url == None:
 			url = db.sqldb.Url(ref, title)
 			database.add(url)
+		
 		return url
 	
 	def get_presence(ident, url):
@@ -71,20 +81,25 @@ def add_record(database, (title1, tag1), (title2, tag2), ref, ref_title, distanc
 			.filter(db.sqldb.Presence.ident_id == ident.id)\
 			.filter(db.sqldb.Presence.url_id == url.id)\
 			.first()
+		
 		if presence == None:
 			presence = db.sqldb.Presence(ident, url)
 			database.add(presence)
+		
 		return presence
 	
 	def increase_freq(obj, number, inc):
 		freq = getattr(obj, 'freq_' + str(int(number)))
 		freq = int(freq) + inc
+		
 		if freq < 0:
 			freq = 0
+		
 		setattr(obj, 'freq_' + str(number), freq)
 	
 	def get_freqs(obj):
-		return [ (i, int(getattr(obj, 'freq_' + str(i)))) for i in xrange(1, 11) ]
+		return [ (i, int(getattr(obj, 'freq_' + str(i))))
+			for i in xrange(1, 11) ]
 	
 	def update_ident_score(ident):
 		ident.score = (ident.freq_1 * 0.1 + 
@@ -198,6 +213,7 @@ def collect(text):
 	title = None
 	identities = []
 	for provider, tag in config.gather.get('providers', ()):
+		# FIXME: pass all providers to parse_file to avoid multiple parsing
 		title, idents = html.lxmlp.parse_file(StringIO.StringIO(text), provider)
 		if title:
 			title = title.strip(u' \t\n\r')
@@ -458,7 +474,7 @@ if __name__ == '__main__':
 				assert(other_tag)
 				assert(distance <= distance_threshold)
 		
-		def testGather(self):
+		def testGathering(self):
 			title, gathered = collect(open(self.filename, 'rt').read())
 			assert(title)
 			assert(len(gathered) > 0)

@@ -11,9 +11,13 @@ Base = declarative_base()
 
 class Ident(Base):
 	__tablename__ = 'idents'
+	__table_args__ = (
+		UniqueConstraint('title', 'tag'), 
+		{}, 
+	)
 	
 	id = Column(Integer, primary_key = True)
-	title = Column(String(limits.max_ident_title_len), nullable = False, unique = True)
+	title = Column(String(limits.max_ident_title_len), nullable = False)
 	tag = Column(String(limits.max_ident_tag_len), nullable = False)
 	alias = Column(Integer, ForeignKey(id, ondelete = 'cascade', onupdate = 'cascade'))
 	metaphone = Column(String(limits.max_ident_metaphone_len))

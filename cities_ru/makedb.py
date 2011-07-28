@@ -56,7 +56,12 @@ def decline(geo):
 
 
 def save_cities(cities, cities_db):
-	'''Store cities list (and their cases) to cities_db'''
+	'''
+	Store cities list (and their cases) to cities_db
+	
+	Mapping:
+	Москвы -> Москва, Москве -> Москва...
+	'''
 	
 	d = shelve.open(cities_db)
 	
@@ -69,7 +74,12 @@ def save_cities(cities, cities_db):
 
 
 def save_regions(regions, regions_db):
-	'''Store regions list (and their cases) to regions_db'''
+	'''
+	Store regions list (and their cases) to regions_db
+	
+	Mapping:
+	Приморского края -> Приморский край, Приморскому краю -> Приморский край...
+	'''
 	
 	d = shelve.open(regions_db)
 	
@@ -92,7 +102,7 @@ def save_world(world, world_db):
 	
 	Mapping:
 	Region -> List of cities
-	City -> Region
+	City -> Region (e.g. cit-Зеленоград -> Москва)
 	'''
 	
 	def region_key(region):
