@@ -1,18 +1,21 @@
 #-*- coding: UTF-8
 
+from api.query import QueryError
 import api.config
 import cgi
+import web.config
+
+
+HTTP_200 = '200 OK'
+HTTP_500 = '500 Not OK'
 
 
 class LittleApplicationError(Exception):
 	pass
 
 
-import web.config
-
-
 def init_memcached():
-	"""Try to make use of memcached, fallback to default app if failed"""
+	'''Try to make use of memcached, fallback to default app if failed'''
 	
 	try:
 		import memcache
@@ -31,25 +34,25 @@ def init_memcached():
 
 
 def memcached_hack(string):
-	"""memcached_pass double-encodes $args, this mimics its behavior"""
+	'''memcached_pass double-encodes $args, this mimics its behavior'''
 	return string.replace('%', '%25')
 
 
 def parse_query(query):
-	"""Extract arguments from query"""
+	'''Extract arguments from query'''
 	
 	# cgi.parse_qs() instead of urlparse.parse_qs() because of python 2.5
 	args = cgi.parse_qs(query)
 	
-	frontend = args.get('frontend', '')
+	frontend = args.get('frontend', [])
 	if not frontend:
 		raise LittleApplicationError('Frontend not found')
 	frontend = frontend[0]
 	
 	frontends = web.config.application.get('frontends', {})
-	frontend, content_type = frontends.get(frontend, '')
+	front, content_type = frontends.get(frontend, (None, None))
 	
-	if not frontend or not content_type:
+	if not front or not content_type:
 		raise LittleApplicationError('Frontend not found: ' + frontend)
 	
 	interface = args.get('interface', '')
@@ -62,11 +65,11 @@ def parse_query(query):
 	if not handler:
 		raise LittleApplicationError('Interface not found: ' + interface)
 	
-	return (frontend, content_type, handler, args)
+	return (front, content_type, handler, args)
 
 
 def application(environ, start_response, memcache_client = None):
-	"""Application entry point"""
+	'''Application entry point'''
 	
 	try:
 		query = environ.get('QUERY_STRING', None)
@@ -88,34 +91,77 @@ def application(environ, start_response, memcache_client = None):
 #					print e
 					pass
 			
-		except web.application.LittleApplicationError, e:
-			error_message = str(e) 
+		except api.query.QueryError, e:
+			error_message = str(e)
+		except LittleApplicationError, e:
+			error_message = str(e)
 		except Exception, e:
-#			print e.__class__, str(e)
+#			error_message = str(e)
 			error_message = 'Internal error'
 			
 		if error_message:
 			raise Exception(error_message)
 		
-		status = '200 OK'
+		status = HTTP_200
 		headers = [
-			( 'Content-type', '%s; charset=%s' % (content_type, api.config.api.get('encoding', 'UTF-8')) ), 
-			( 'Access-Control-Allow-Origin', '*' ), 
+			( 'Content-type', '%s; charset=%s' % (content_type, api.config.api.get('encoding', 'UTF-8')) ),
+			( 'Access-Control-Allow-Origin', '*' ),
 		]
 		
 		start_response(status, headers)
 		
 		yield response
 	except Exception, e: 
-		status = '500 Not OK'
+		status = HTTP_500
 		headers = [
-			( 'Content-type', 'text/plain; charset=%s' % (api.config.api.get('encoding', 'UTF-8')) ), 
+			( 'Content-type', 'text/plain; charset=%s' % (api.config.api.get('encoding', 'UTF-8')) ),
+			( 'Access-Control-Allow-Origin', '*' ), 
 		]
+		
 		start_response(status, headers)
 		yield str(e)
 
 
 if __name__ == '__main__':
 	import unittest
+	
+	class ErrorsTest(unittest.TestCase):
+		
+		def checkError(self, message, qs):
+			
+			def stub_start_response(status, headers):
+				self.http_status = status
+			
+			self.http_status = None
+			assert(message in ''.join(application({
+				'QUERY_STRING' : qs
+				}, stub_start_response)))
+			assert(self.http_status == HTTP_500)
+	
+	class AppTest(ErrorsTest):
+		
+		def testErrors(self):
+			test_handler = 'app_test'
+			
+			def exceptional_handler(*args):
+				raise Exception('test')
+			
+			# TODO: test exceptional frontend
+				
+			web.config.application['handlers'][test_handler] = exceptional_handler
+			
+			self.checkError('No request', '')
+			self.checkError('Frontend not found', '&')
+			self.checkError('Frontend not found', '&frontend=doesntexist')
+			self.checkError('Frontend not found', '&frontend=')
+			self.checkError('Interface not found', '&frontend=json')
+			self.checkError('Interface not found', '&frontend=json&interface=')
+			self.checkError('Interface not found', '&frontend=json&interface=doesntexist')
+			self.checkError('Internal error', '&frontend=json&interface=' + test_handler)
+	
+	class MemcachedHackTest(unittest.TestCase):
+		
+		def testIt(self):
+			assert(memcached_hack('%20') == '%2520')
 
 	unittest.main()
