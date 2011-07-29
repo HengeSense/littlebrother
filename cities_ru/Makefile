@@ -43,7 +43,11 @@ $(PAGES):
 	"http://ru.wikipedia.org/w/index.php?title=`basename $@ | basename $@ .html`&printable=yes" \
 	-O "$@";
 
-download: $(PAGES)
+mkdirs:
+	mkdir -p ${DB_DIR}
+	mkdir -p ${SOURCE_DIR}
+
+download: mkdirs $(PAGES)
 
 $(EXTRACTED_CITIES):
 	rm -f "${EXTRACTED_CITIES}"
