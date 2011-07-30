@@ -41,7 +41,7 @@ psql -U $USERNAME $FRONTEND -c "ANALYZE web"
 ###
 
 pg_dump -U friend $MASTER > $MASTER_BACKUP
-gzip $MASTER_BACKUP
+gzip -f $MASTER_BACKUP
 
 pg_dump -U friend $FRONTEND > $FRONTEND_BACKUP
-gzip $FRONTEND_BACKUP
+gzip -f $FRONTEND_BACKUP
