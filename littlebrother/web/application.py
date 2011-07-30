@@ -142,13 +142,16 @@ if __name__ == '__main__':
 		
 		def testErrors(self):
 			test_handler = 'app_test'
+			test_frontend = 'app_test'
 			
 			def exceptional_handler(*args):
 				raise Exception('test')
 			
-			# TODO: test exceptional frontend
-				
+			def exceptional_frontend(*args):
+				raise Exception('test')
+			
 			web.config.application['handlers'][test_handler] = exceptional_handler
+			web.config.application['frontends'][test_frontend] = exceptional_frontend
 			
 			self.checkError('No request', '')
 			self.checkError('Frontend not found', '&')
@@ -157,6 +160,7 @@ if __name__ == '__main__':
 			self.checkError('Interface not found', '&frontend=json')
 			self.checkError('Interface not found', '&frontend=json&interface=')
 			self.checkError('Interface not found', '&frontend=json&interface=doesntexist')
+			self.checkError('Internal error', '&frontend=' + test_frontend)
 			self.checkError('Internal error', '&frontend=json&interface=' + test_handler)
 	
 	class MemcachedHackTest(unittest.TestCase):

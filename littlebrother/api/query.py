@@ -50,7 +50,7 @@ def idents(frontend, args):
 		.offset(offset)\
 		.limit(limit) 
 
-	return frontend.dump(( 
+	return frontend(( 
 		{ 
 			'title' : ident.title, 
 			'tag' : ident.tag,
@@ -98,7 +98,7 @@ def fuzzy_idents(frontend, args):
 		.offset(offset)\
 		.limit(limit) 
 	
-	return frontend.dump(( 
+	return frontend(( 
 		{ 
 			'title' : ident.title, 
 			'tag' : ident.tag, 
@@ -184,7 +184,7 @@ def connections(frontend, args):
 		.filter(db.sqldb.Friend.ident_2_id.in_(connections_ids))\
 		.order_by(db.sqldb.Friend.score.desc())
 	
-	return frontend.dump((
+	return frontend((
 		{
 			'title' : connection.ident_2_title.encode(config.api.get('encoding', 'UTF-8')),
 			'tag' : connection.ident_2_tag,  
@@ -273,7 +273,7 @@ def urls(frontend, args):
 		.filter(db.sqldb.Web.url_id.in_(url_ids))\
 		.order_by(db.sqldb.Web.url_id)
 	
-	return frontend.dump((
+	return frontend((
 		{
 			'ref' : web.url_ref, 
 			'ref_title' : web.url_title, 
@@ -360,7 +360,7 @@ def pack(frontend, args):
 	db_connections = database.query(db.sqldb.Ident)\
 		.filter(db.sqldb.Ident.id.in_(itertools.chain(lv1_ids, lv2_ids)))
 	
-	return frontend.dump((
+	return frontend((
 		{
 			'title' : ident.title.encode(config.api.get('encoding', 'UTF-8')),
 			'tag' : ident.tag,
@@ -382,7 +382,7 @@ def stats(frontend, args):
 	for db_stat in db_stats:
 		stats[db_stat.key] = db_stat.value
 	
-	return frontend.dump((stats, ))
+	return frontend((stats, ))
 
 
 if __name__ == '__main__':
@@ -459,20 +459,17 @@ if __name__ == '__main__':
 #			print fulltext
 			
 		def testJson(self):
-			self.checkResults(jsonfront)
+			self.checkResults(jsonfront.dump)
 	
 	class InterfaceErrorsTest(unittest.TestCase):
 		
 		def checkInternalError(self, interface, args, argument_name):
 			
-			class StubFrontend(object):
-				
-				@staticmethod
-				def dump(*args):
-					pass
+			def stub_frontend(*args):
+				return ''
 			
 			try:
-				interface(StubFrontend, args)
+				interface(stub_frontend, args)
 			except QueryError, e:
 #				print e
 				assert('Invalid argument' in str(e) and argument_name in str(e))

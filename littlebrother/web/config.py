@@ -13,7 +13,7 @@ application = {
 		'stats' : (api.query.stats),  
 	}, 
 	'frontends' : {
-		'json' : (api.jsonfront, 'application/json'), 
+		'json' : (api.jsonfront.dump, 'application/json'), 
 	}, 
 }
 
