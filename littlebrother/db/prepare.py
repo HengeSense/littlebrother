@@ -1,8 +1,8 @@
 #-*- coding: UTF-8
 
 from sqlalchemy.orm import aliased
-import db
-import sqldb
+import db.database
+import db.sqldb
 
 transaction_len = 1000
 idents_job, friends_job, web_job, stats_job = range(4)
@@ -15,16 +15,16 @@ def copy_idents(from_db, to_db, callback = None):
 	if callback:
 		callback(stage_1, 0)
 	
-	to_db.query(sqldb.Ident).delete()
+	to_db.query(db.sqldb.Ident).delete()
 	
 	if callback:
 		callback(stage_1, 100)
 		callback(stage_2, 0)
 	
-	total_idents = from_db.query(sqldb.Ident).count()
+	total_idents = from_db.query(db.sqldb.Ident).count()
 	
-	for i, ident in enumerate(from_db.query(sqldb.Ident).yield_per(transaction_len)):
-		copy = sqldb.Ident(ident.title, ident.tag, metaphone = ident.metaphone)
+	for i, ident in enumerate(from_db.query(db.sqldb.Ident).yield_per(transaction_len)):
+		copy = db.sqldb.Ident(ident.title, ident.tag, metaphone = ident.metaphone)
 		copy.id = ident.id
 		copy.alias = ident.alias
 		copy.score = ident.score
@@ -46,24 +46,24 @@ def create_friends(from_db, to_db, callback = None):
 	if callback:
 		callback(stage_1, 0)
 	
-	to_db.query(sqldb.Friend).delete()
+	to_db.query(db.sqldb.Friend).delete()
 	
 	if callback: 
 		callback(stage_1, 100)
 		callback(stage_2, 0)
 		
-	total_links = from_db.query(sqldb.Link).count()
+	total_links = from_db.query(db.sqldb.Link).count()
 	
-	idents_alias_1 = aliased(db.sqldb.Ident)
-	idents_alias_2 = aliased(db.sqldb.Ident)
+	idents_alias_1 = aliased(db.database.sqldb.Ident)
+	idents_alias_2 = aliased(db.database.sqldb.Ident)
 	
-	query = from_db.query(sqldb.Link, idents_alias_1, idents_alias_2)\
-		.join(( idents_alias_1, db.sqldb.Link.ident_1_id == idents_alias_1.id ))\
-		.join(( idents_alias_2, db.sqldb.Link.ident_2_id == idents_alias_2.id ))\
+	query = from_db.query(db.sqldb.Link, idents_alias_1, idents_alias_2)\
+		.join(( idents_alias_1, db.database.sqldb.Link.ident_1_id == idents_alias_1.id ))\
+		.join(( idents_alias_2, db.database.sqldb.Link.ident_2_id == idents_alias_2.id ))\
 		.yield_per(transaction_len)
 	
 	for i, (link, ident_1, ident_2) in enumerate(query):
-		copy = sqldb.Friend(ident_1, ident_2)
+		copy = db.sqldb.Friend(ident_1, ident_2)
 		copy.average = link.average
 		copy.median = link.median
 		copy.score = link.score
@@ -90,24 +90,24 @@ def create_web(from_db, to_db, callback = None):
 	if callback:
 		callback(stage_1, 0)
 	
-	to_db.query(sqldb.Web).delete()
+	to_db.query(db.sqldb.Web).delete()
 	
 	if callback: 
 		callback(stage_1, 100)
 		callback(stage_2, 0)
 	
-	total_presence = from_db.query(sqldb.Presence).count()
+	total_presence = from_db.query(db.sqldb.Presence).count()
 	
-	idents_alias = aliased(db.sqldb.Ident)
-	urls_alias = aliased(db.sqldb.Url)
+	idents_alias = aliased(db.database.sqldb.Ident)
+	urls_alias = aliased(db.database.sqldb.Url)
 	
-	query = from_db.query(sqldb.Presence, idents_alias, urls_alias)\
-		.join(( idents_alias, db.sqldb.Presence.ident_id == idents_alias.id ))\
-		.join(( urls_alias, db.sqldb.Presence.url_id == urls_alias.id ))\
+	query = from_db.query(db.sqldb.Presence, idents_alias, urls_alias)\
+		.join(( idents_alias, db.database.sqldb.Presence.ident_id == idents_alias.id ))\
+		.join(( urls_alias, db.database.sqldb.Presence.url_id == urls_alias.id ))\
 		.yield_per(transaction_len)
 	
 	for i, (_, ident, url) in enumerate(query):
-		copy = sqldb.Web(ident, url)
+		copy = db.sqldb.Web(ident, url)
 		
 		to_db.add(copy)
 		
@@ -126,35 +126,35 @@ def fill_stats(db, callback = None):
 	if callback:
 		callback(stage_1, 0)
 	
-	db.query(sqldb.Stat).delete()
+	db.query(db.sqldb.Stat).delete()
 	
 	if callback: 
 		callback(stage_1, 100)
 		callback(stage_2, 0)
 	
-	total_idents = db.query(sqldb.Ident).count()
-	total_names = db.query(sqldb.Ident).filter(sqldb.Ident.tag == 'names').count()
-	total_orgs = db.query(sqldb.Ident).filter(sqldb.Ident.tag == 'orgs').count()
-	top_ident = db.query(sqldb.Ident).order_by(sqldb.Ident.score.desc()).limit(1).first()
-	bottom_ident = db.query(sqldb.Ident).order_by(sqldb.Ident.score).limit(1).first()
-	top_name = db.query(sqldb.Ident).filter(sqldb.Ident.tag == 'names').order_by(sqldb.Ident.score.desc()).limit(1).first()
-	bottom_name = db.query(sqldb.Ident).filter(sqldb.Ident.tag == 'names').order_by(sqldb.Ident.score).limit(1).first()
-	top_org = db.query(sqldb.Ident).filter(sqldb.Ident.tag == 'orgs').order_by(sqldb.Ident.score.desc()).limit(1).first()
-	bottom_org = db.query(sqldb.Ident).filter(sqldb.Ident.tag == 'orgs').order_by(sqldb.Ident.score).limit(1).first()
-	total_urls = db.query(sqldb.Web.url_id).group_by(sqldb.Web.url_id).count()
-	total_records = db.query(sqldb.Ident).count() + db.query(sqldb.Friend).count() + db.query(sqldb.Web).count()
+	total_idents = db.query(db.sqldb.Ident).count()
+	total_names = db.query(db.sqldb.Ident).filter(db.sqldb.Ident.tag == 'names').count()
+	total_orgs = db.query(db.sqldb.Ident).filter(db.sqldb.Ident.tag == 'orgs').count()
+	top_ident = db.query(db.sqldb.Ident).order_by(db.sqldb.Ident.score.desc()).limit(1).first()
+	bottom_ident = db.query(db.sqldb.Ident).order_by(db.sqldb.Ident.score).limit(1).first()
+	top_name = db.query(db.sqldb.Ident).filter(db.sqldb.Ident.tag == 'names').order_by(db.sqldb.Ident.score.desc()).limit(1).first()
+	bottom_name = db.query(db.sqldb.Ident).filter(db.sqldb.Ident.tag == 'names').order_by(db.sqldb.Ident.score).limit(1).first()
+	top_org = db.query(db.sqldb.Ident).filter(db.sqldb.Ident.tag == 'orgs').order_by(db.sqldb.Ident.score.desc()).limit(1).first()
+	bottom_org = db.query(db.sqldb.Ident).filter(db.sqldb.Ident.tag == 'orgs').order_by(db.sqldb.Ident.score).limit(1).first()
+	total_urls = db.query(db.sqldb.Web.url_id).group_by(db.sqldb.Web.url_id).count()
+	total_records = db.query(db.sqldb.Ident).count() + db.query(db.sqldb.Friend).count() + db.query(db.sqldb.Web).count()
 	
-	db.add(sqldb.Stat('total_idents', str(total_idents)))
-	db.add(sqldb.Stat('total_names', str(total_names)))
-	db.add(sqldb.Stat('total_orgs', str(total_orgs)))
-	db.add(sqldb.Stat('top_ident', top_ident.title))
-	db.add(sqldb.Stat('bottom_ident', bottom_ident.title))
-	db.add(sqldb.Stat('top_name', top_name.title))
-	db.add(sqldb.Stat('bottom_name', bottom_name.title))
-	db.add(sqldb.Stat('top_org', top_org.title))
-	db.add(sqldb.Stat('bottom_org', bottom_org.title))
-	db.add(sqldb.Stat('total_urls', str(total_urls)))
-	db.add(sqldb.Stat('total_records', str(total_records)))
+	db.add(db.sqldb.Stat('total_idents', str(total_idents)))
+	db.add(db.sqldb.Stat('total_names', str(total_names)))
+	db.add(db.sqldb.Stat('total_orgs', str(total_orgs)))
+	db.add(db.sqldb.Stat('top_ident', top_ident.title))
+	db.add(db.sqldb.Stat('bottom_ident', bottom_ident.title))
+	db.add(db.sqldb.Stat('top_name', top_name.title))
+	db.add(db.sqldb.Stat('bottom_name', bottom_name.title))
+	db.add(db.sqldb.Stat('top_org', top_org.title))
+	db.add(db.sqldb.Stat('bottom_org', bottom_org.title))
+	db.add(db.sqldb.Stat('total_urls', str(total_urls)))
+	db.add(db.sqldb.Stat('total_records', str(total_records)))
 	
 	db.commit()
 	
@@ -165,8 +165,8 @@ def fill_stats(db, callback = None):
 def create_frontend(callback = None):
 	'''Fill frontend DB with master's data'''
 	
-	master = db.get_master_db_ro()
-	frontend = db.get_frontend_db_rw()
+	master = db.database.get_master_db_ro()
+	frontend = db.database.get_frontend_db_rw()
 
 	# short jobs first
 	copy_idents(master, 

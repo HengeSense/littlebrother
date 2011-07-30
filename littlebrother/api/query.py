@@ -2,12 +2,12 @@
 
 from sqlalchemy import func # FIXME: this belongs to db.sqldb somehow
 from sqlalchemy import not_ # FIXME: this belongs to db.sqldb somehow
-import config
-import db.db
+import api.config
+import api.utils
+import db.database
 import db.sqldb
 import ident.metaphone_ru
 import itertools
-import utils
 
 
 class QueryError(Exception):
@@ -28,21 +28,21 @@ def idents(frontend, args):
 		raise QueryError('Invalid argument: ' + str(e))
 	
 	if not limit:
-		limit = config.api.get('max_idents', 5)
+		limit = api.config.api.get('max_idents', 5)
 		
-	limit = min(limit, config.api.get('max_idents', 5))
+	limit = min(limit, api.config.api.get('max_idents', 5))
 	
 	if not pattern:
 		raise QueryError("Invalid argument: 'pattern' can't be empty")
 	
 	valid_pattern = (pattern 
-		and utils.sql_escape(pattern.decode(config.api.get('encoding', 'UTF-8'))) 
+		and api.utils.sql_escape(pattern.decode(api.config.api.get('encoding', 'UTF-8'))) 
 		or None)
 	
-	if not utils.sql_valid(valid_pattern):
+	if not api.utils.sql_valid(valid_pattern):
 		raise QueryError('Invalid argument: ' + pattern)
 	
-	database = db.db.get_frontend_db_ro()
+	database = db.database.get_frontend_db_ro()
 	
 	db_idents = database.query(db.sqldb.Ident)\
 		.filter(db.sqldb.Ident.title.like(valid_pattern + '%'))\
@@ -74,23 +74,23 @@ def fuzzy_idents(frontend, args):
 		raise QueryError('Invalid argument: ' + str(e))
 	
 	if not limit:
-		limit = config.api.get('max_idents', 5)
+		limit = api.config.api.get('max_idents', 5)
 	
-	limit = min(limit, config.api.get('max_idents', 5))
+	limit = min(limit, api.config.api.get('max_idents', 5))
 	
 	if not pattern:
 		raise QueryError("Invalid argument: 'pattern' can't be empty")
 	
 	valid_pattern = (pattern 
-		and utils.sql_escape(pattern.decode(config.api.get('encoding', 'UTF-8'))) 
+		and api.utils.sql_escape(pattern.decode(api.config.api.get('encoding', 'UTF-8'))) 
 		or None)
 	
-	if not utils.sql_valid(valid_pattern):
+	if not api.utils.sql_valid(valid_pattern):
 		raise QueryError('Invalid argument: ' + pattern)
 	
 	metaphone = ident.metaphone_ru.metaphone(valid_pattern)
 	
-	database = db.db.get_frontend_db_ro()
+	database = db.database.get_frontend_db_ro()
 	
 	db_idents = database.query(db.sqldb.Ident)\
 		.filter(db.sqldb.Ident.metaphone.like(metaphone + '%'))\
@@ -124,35 +124,35 @@ def connections(frontend, args):
 		raise QueryError('Invalid argument: ' + str(e))
 	
 	if not limit:
-		limit = config.api.get('max_connections', 15)
+		limit = api.config.api.get('max_connections', 15)
 	
-	limit = min(limit, config.api.get('max_connections', 15))
+	limit = min(limit, api.config.api.get('max_connections', 15))
 	
 	if not idents:
 		raise QueryError("Invalid argument: 'idents' list can not be empty")
 	
-	valid_pattern = (pattern and utils.sql_escape(pattern.decode(config.api.get('encoding', 'UTF-8'))) or None)
+	valid_pattern = (pattern and api.utils.sql_escape(pattern.decode(api.config.api.get('encoding', 'UTF-8'))) or None)
 	if pattern:
-		if not utils.sql_valid(valid_pattern):
+		if not api.utils.sql_valid(valid_pattern):
 			raise QueryError('Invalid argument: ' + pattern)
 	
-	max_intersection_idents = config.api.get('max_intersection_idents', 3)
+	max_intersection_idents = api.config.api.get('max_intersection_idents', 3)
 	if len(idents) > max_intersection_idents:
 		raise QueryError("Invalid argument: 'idents' list must include not more than " + str(max_intersection_idents) + " entries")
 	
-	valid_idents = [ utils.sql_escape(ident.decode(config.api.get('encoding', 'UTF-8'))) for ident in idents ]
+	valid_idents = [ api.utils.sql_escape(ident.decode(api.config.api.get('encoding', 'UTF-8'))) for ident in idents ]
 	for ident in valid_idents:
-		if not utils.sql_valid(ident):
+		if not api.utils.sql_valid(ident):
 			raise QueryError('Invalid argument: ' + ident)
 	
-	database = db.db.get_frontend_db_ro()
+	database = db.database.get_frontend_db_ro()
 	
 	db_idents = database.query(db.sqldb.Ident.id)\
 		.filter(db.sqldb.Ident.title.in_(valid_idents))\
 		.all()
 	
 	if (len(db_idents) != len(valid_idents)):
-		invalid_idents = ( ident.encode(config.api.get('encoding', 'UTF-8')) for ident in valid_idents if ident not in ( ident.title for ident in db_idents ) )
+		invalid_idents = ( ident.encode(api.config.api.get('encoding', 'UTF-8')) for ident in valid_idents if ident not in ( ident.title for ident in db_idents ) )
 		raise QueryError('Invalid argument(s): ' + ', '.join(invalid_idents))
 	
 	max_score = func.max(db.sqldb.Friend.score)
@@ -168,7 +168,7 @@ def connections(frontend, args):
 			.filter(db.sqldb.Friend.ident_2_tag == tag)
 	
 	if pattern:
-		max_tokens = config.api.get('max_connections_filter_tokens', 2)
+		max_tokens = api.config.api.get('max_connections_filter_tokens', 2)
 		for token in valid_pattern.split(' ')[:max_tokens]:
 			db_connections = db_connections\
 				.filter(db.sqldb.Friend.ident_2_title.op('ilike')('%' + token.strip() + '%'))
@@ -186,7 +186,7 @@ def connections(frontend, args):
 	
 	return frontend((
 		{
-			'title' : connection.ident_2_title.encode(config.api.get('encoding', 'UTF-8')),
+			'title' : connection.ident_2_title.encode(api.config.api.get('encoding', 'UTF-8')),
 			'tag' : connection.ident_2_tag,  
 			'median' : connection.median, 
 			'average' : connection.average, 
@@ -212,40 +212,40 @@ def urls(frontend, args):
 		raise QueryError('Invalid argument: ' + str(e))
 	
 	if not limit:
-		limit = config.api.get('max_urls', 15)
+		limit = api.config.api.get('max_urls', 15)
 	
-	limit = min(limit, config.api.get('max_urls', 15))
+	limit = min(limit, api.config.api.get('max_urls', 15))
 	
 	if not idents:
 		raise QueryError("Invalid argument: 'idents' list can not be empty")
 	
-	valid_title = (title and utils.sql_escape(title.decode(config.api.get('encoding', 'UTF-8'))) or None)
+	valid_title = (title and api.utils.sql_escape(title.decode(api.config.api.get('encoding', 'UTF-8'))) or None)
 	if title:
-		if not utils.sql_valid(valid_title):
+		if not api.utils.sql_valid(valid_title):
 			raise QueryError('Invalid argument: ' + title)
 	
-	valid_domain = (domain and utils.sql_escape(domain.decode(config.api.get('encoding', 'UTF-8'))) or None)
+	valid_domain = (domain and api.utils.sql_escape(domain.decode(api.config.api.get('encoding', 'UTF-8'))) or None)
 	if domain:
-		if not utils.sql_valid(valid_domain):
+		if not api.utils.sql_valid(valid_domain):
 			raise QueryError('Invalid argument: ' + domain)
 	
-	max_intersection_idents = config.api.get('max_intersection_idents', 3)
+	max_intersection_idents = api.config.api.get('max_intersection_idents', 3)
 	if len(idents) > max_intersection_idents:
 		raise QueryError("Invalid argument: 'idents' list must include not more than " + str(max_intersection_idents) + " entries")
 	
-	valid_idents = [ utils.sql_escape(ident.decode(config.api.get('encoding', 'UTF-8'))) for ident in idents ]
+	valid_idents = [ api.utils.sql_escape(ident.decode(api.config.api.get('encoding', 'UTF-8'))) for ident in idents ]
 	for ident in valid_idents:
-		if not utils.sql_valid(ident):
+		if not api.utils.sql_valid(ident):
 			raise QueryError('Invalid argument: ' + ident)
 	
-	database = db.db.get_frontend_db_ro()
+	database = db.database.get_frontend_db_ro()
 	
 	db_idents = database.query(db.sqldb.Ident.id)\
 		.filter(db.sqldb.Ident.title.in_(valid_idents))\
 		.all()
 	
 	if (len(db_idents) != len(valid_idents)):
-		invalid_idents = ( ident.encode(config.api.get('encoding', 'UTF-8')) for ident in valid_idents if ident not in ( ident.title for ident in db_idents ) )
+		invalid_idents = ( ident.encode(api.config.api.get('encoding', 'UTF-8')) for ident in valid_idents if ident not in ( ident.title for ident in db_idents ) )
 		raise QueryError('Invalid argument(s): ' + ', '.join(invalid_idents))
 	
 	db_web = database.query(db.sqldb.Web.url_id)\
@@ -254,7 +254,7 @@ def urls(frontend, args):
 		.having(func.count(db.sqldb.Web.url_id) == len(db_idents))
 	
 	if title:
-		max_tokens = config.api.get('max_title_filter_tokens', 5)
+		max_tokens = api.config.api.get('max_title_filter_tokens', 5)
 		for token in valid_title.split(' ')[:max_tokens]:
 			db_web = db_web.filter(db.sqldb.Web.url_title.op('ilike')('%' + token.strip() + '%'))
 	
@@ -299,16 +299,16 @@ def pack(frontend, args):
 	if not ident or not ident[0]:
 		raise QueryError("Invalid argument: 'ident' can not be empty")
 	
-	valid_ident = utils.sql_escape(ident[0].decode(config.api.get('encoding', 'UTF-8')))
-	if not utils.sql_valid(valid_ident):
+	valid_ident = api.utils.sql_escape(ident[0].decode(api.config.api.get('encoding', 'UTF-8')))
+	if not api.utils.sql_valid(valid_ident):
 		raise QueryError('Invalid argument: ' + ident[0])
 	
-	valid_pattern = (pattern and utils.sql_escape(pattern.decode(config.api.get('encoding', 'UTF-8'))) or None)
+	valid_pattern = (pattern and api.utils.sql_escape(pattern.decode(api.config.api.get('encoding', 'UTF-8'))) or None)
 	if pattern:
-		if not utils.sql_valid(valid_pattern):
+		if not api.utils.sql_valid(valid_pattern):
 			raise QueryError('Invalid argument: ' + pattern)
 	
-	database = db.db.get_frontend_db_ro()
+	database = db.database.get_frontend_db_ro()
 	
 	db_idents = database.query(db.sqldb.Ident.id)\
 		.filter(db.sqldb.Ident.title == valid_ident)\
@@ -328,14 +328,14 @@ def pack(frontend, args):
 		db_connections_lv1 = db_connections_lv1.filter(db.sqldb.Friend.ident_2_tag == tag)
 	
 	if pattern:
-		max_tokens = config.api.get('max_connections_filter_tokens', 2)
+		max_tokens = api.config.api.get('max_connections_filter_tokens', 2)
 		for token in valid_pattern.split(' ')[:max_tokens]:
 			db_connections_lv1 = db_connections_lv1\
 				.filter(db.sqldb.Friend.ident_2_title.op('ilike')('%' + token.strip() + '%'))
 	
 	db_connections_lv1 = db_connections_lv1\
 		.offset(offset)\
-		.limit(config.api.get('max_pack_layer_1_size', 15))
+		.limit(api.config.api.get('max_pack_layer_1_size', 15))
 	
 	lv1_ids = [ connection.ident_2_id for connection in db_connections_lv1 ]
 	lv2_ids = []
@@ -353,7 +353,7 @@ def pack(frontend, args):
 				.filter(db.sqldb.Friend.ident_2_tag == tag)
 		
 		db_connections_lv2 = db_connections_lv2\
-			.limit(config.api.get('max_pack_layer_2_size', 30))
+			.limit(api.config.api.get('max_pack_layer_2_size', 30))
 		
 		lv2_ids = [ connection.ident_2_id for connection in db_connections_lv2 ]
 	
@@ -362,7 +362,7 @@ def pack(frontend, args):
 	
 	return frontend((
 		{
-			'title' : ident.title.encode(config.api.get('encoding', 'UTF-8')),
+			'title' : ident.title.encode(api.config.api.get('encoding', 'UTF-8')),
 			'tag' : ident.tag,
 			'score' : ident.score, 
 			'level' : ident.id in lv2_ids and 2 or 1,
@@ -374,7 +374,7 @@ def pack(frontend, args):
 def stats(frontend, args):
 	'''List DB statistics'''
 	
-	database = db.db.get_frontend_db_ro()
+	database = db.database.get_frontend_db_ro()
 	
 	db_stats = database.query(db.sqldb.Stat).all()
 	
@@ -397,7 +397,7 @@ if __name__ == '__main__':
 		ref = 'http://kremlin.ru' 
 		
 		def setUp(self):
-			database = db.db.get_frontend_db_rw()
+			database = db.database.get_frontend_db_rw()
 			
 			ident1 = database.query(db.sqldb.Ident)\
 				.filter(db.sqldb.Ident.title == self.main_ident)\
@@ -461,7 +461,7 @@ if __name__ == '__main__':
 		def testJson(self):
 			self.checkResults(jsonfront.dump)
 	
-	class InterfaceErrorsTest(unittest.TestCase):
+	class ErrorsTest(unittest.TestCase):
 		
 		def checkInternalError(self, interface, args, argument_name):
 			
@@ -473,8 +473,6 @@ if __name__ == '__main__':
 			except QueryError, e:
 #				print e
 				assert('Invalid argument' in str(e) and argument_name in str(e))
-	
-	class ErrorsTest(InterfaceErrorsTest):
 		
 		def testIdents(self):
 			self.checkInternalError(idents, {}, 'pattern')
@@ -518,7 +516,7 @@ if __name__ == '__main__':
 				'limit' : ['x'],
 				}, 'int()')
 			self.checkInternalError(connections, {
-				'idents' : ['x'] * (config.api.get('max_intersection_idents', 3) + 1),
+				'idents' : ['x'] * (api.config.api.get('max_intersection_idents', 3) + 1),
 				'offset' : ['0'],
 				'limit' : ['0'],
 				}, 'idents')
@@ -538,7 +536,7 @@ if __name__ == '__main__':
 				'limit' : ['x'],
 				}, 'int()')
 			self.checkInternalError(urls, {
-				'idents' : ['x'] * (config.api.get('max_intersection_idents', 3) + 1),
+				'idents' : ['x'] * (api.config.api.get('max_intersection_idents', 3) + 1),
 				'offset' : ['0'],
 				'limit' : ['0'],
 				}, 'idents')

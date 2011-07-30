@@ -1,7 +1,7 @@
 #-*- coding: UTF-8
 
 from morphy.contrib import lastnames_ru
-import config
+import ident.config
 import pymorphy
 import re
 
@@ -25,8 +25,8 @@ def morph_word(string):
 
 
 class Morph(object):
-	dicts_dir = config.dicts.get('path', 'dicts/ru/shelve45')
-	dicts_type = config.dicts.get('backend', 'shelve')
+	dicts_dir = ident.config.dicts.get('path', 'dicts/ru/shelve45')
+	dicts_type = ident.config.dicts.get('backend', 'shelve')
 	
 	def __init__(self):
 		super(Morph, self).__init__()

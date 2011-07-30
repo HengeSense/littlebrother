@@ -125,7 +125,7 @@ def application(environ, start_response, memcache_client = None):
 if __name__ == '__main__':
 	import unittest
 	
-	class ErrorsTest(unittest.TestCase):
+	class AppTest(unittest.TestCase):
 		
 		def checkError(self, message, qs):
 			
@@ -137,8 +137,6 @@ if __name__ == '__main__':
 				'QUERY_STRING' : qs
 				}, stub_start_response)))
 			assert(self.http_status == HTTP_500)
-	
-	class AppTest(ErrorsTest):
 		
 		def testErrors(self):
 			test_handler = 'app_test'

@@ -1,7 +1,7 @@
 #-*- coding: UTF-8
 
-from lxml import etree
 import chardet.universaldetector
+import lxml.etree
 import re
 
 charset_regex = re.compile(
@@ -56,8 +56,8 @@ def parse_file(filep, providers):
 
 	filep.seek(0)
 
-	parser = etree.HTMLParser(encoding = charset)
-	doc = etree.parse(filep, parser)
+	parser = lxml.etree.HTMLParser(encoding = charset)
+	doc = lxml.etree.parse(filep, parser)
 	
 	title = doc.xpath('//title/text()')
 	title = (title and title[0] or None)

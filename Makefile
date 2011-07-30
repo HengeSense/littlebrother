@@ -14,7 +14,7 @@ SRC= \
 	\
 	littlebrother/html/lxmlp.py \
 	\
-	littlebrother/db/db.py \
+	littlebrother/db/database.py \
 	littlebrother/db/sqldb.py \
 	\
 	littlebrother/api/utils.py \

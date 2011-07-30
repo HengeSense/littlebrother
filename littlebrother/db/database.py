@@ -1,7 +1,7 @@
 #-*- coding: UTF-8
 
-import config
-import sqldb
+import db.config
+import db.sqldb
 
 frontend_db_rw = None
 frontend_db_ro = None
@@ -14,7 +14,9 @@ def get_frontend_db_rw():
 	global frontend_db_rw
 	
 	if not frontend_db_rw:
-		frontend_db_rw = sqldb.SqlDB(config.database.get('frontend_url', ''), autocommit = False)
+		frontend_db_rw = db.sqldb.SqlDB(
+			db.config.database.get('frontend_url', ''),
+			autocommit = False)
 		frontend_db_rw.create_all()
 	return frontend_db_rw
 
@@ -24,7 +26,9 @@ def get_frontend_db_ro():
 	global frontend_db_ro
 	
 	if not frontend_db_ro:
-		frontend_db_ro = sqldb.SqlDB(config.database.get('frontend_url', ''), autocommit = True)
+		frontend_db_ro = db.sqldb.SqlDB(
+			db.config.database.get('frontend_url', ''),
+			autocommit = True)
 	return frontend_db_ro
 
 
@@ -33,7 +37,9 @@ def get_master_db_rw():
 	global master_db_rw
 	
 	if not master_db_rw:
-		master_db_rw = sqldb.SqlDB(config.database.get('master_url', ''), autocommit = False)
+		master_db_rw = db.sqldb.SqlDB(
+			db.config.database.get('master_url', ''),
+			autocommit = False)
 		master_db_rw.create_all()
 	return master_db_rw
 
@@ -43,7 +49,9 @@ def get_master_db_ro():
 	global master_db_ro
 	
 	if not master_db_ro:
-		master_db_ro = sqldb.SqlDB(config.database.get('master_url', ''), autocommit = True)
+		master_db_ro = db.sqldb.SqlDB(
+			db.config.database.get('master_url', ''),
+			autocommit = True)
 	return master_db_ro
 
 

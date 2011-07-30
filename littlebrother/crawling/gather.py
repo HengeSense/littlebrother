@@ -2,8 +2,8 @@
 
 from ident import metaphone_ru
 import StringIO
-import config
-import db.db
+import crawling.config
+import db.database
 import db.limits
 import db.sqldb
 import html.lxmlp
@@ -211,7 +211,7 @@ def collect(text):
 	'''Collect records from text'''
 	
 	title = None
-	providers = config.gather.get('providers', ())
+	providers = crawling.config.gather.get('providers', ())
 	
 	title, identities = html.lxmlp.parse_file(StringIO.StringIO(text), providers)
 	
@@ -244,7 +244,7 @@ def gather(url, text):
 	
 	title, gathered = collect(text)
 	
-	database = db.db.get_master_db_rw()
+	database = db.database.get_master_db_rw()
 	for (identity, tag, other, other_tag), distance in gathered.iteritems():
 		try:
 			add_record(database, 
@@ -268,7 +268,7 @@ if __name__ == '__main__':
 		filename = u'samples/test.html'
 		
 		def setUp(self):
-			database = db.db.get_master_db_rw()
+			database = db.database.get_master_db_rw()
 			
 			url = database.query(db.sqldb.Url)\
 				.filter(db.sqldb.Url.ref == self.url)\
@@ -290,7 +290,7 @@ if __name__ == '__main__':
 			ok_ref = 'x' * (db.limits.max_ref_len)
 			ok_ref_title = 'x' * (db.limits.max_ref_title_len)
 			
-			database = db.db.get_master_db_rw()
+			database = db.database.get_master_db_rw()
 			assert(database != None)
 			
 			idents = database.query(db.sqldb.Ident)\
@@ -351,7 +351,7 @@ if __name__ == '__main__':
 			tag = 'names'
 			distance = 4
 			
-			database = db.db.get_master_db_rw()
+			database = db.database.get_master_db_rw()
 			assert(database != None)
 			
 			ident1 = database.query(db.sqldb.Ident).filter(db.sqldb.Ident.title == name1).first()
@@ -479,7 +479,7 @@ if __name__ == '__main__':
 			
 			gather(self.url, open(self.filename, 'rt').read())
 			
-			database = db.db.get_master_db_ro()
+			database = db.database.get_master_db_ro()
 			
 			for item in gathered.iteritems():
 				ident, tag, other, other_tag = item[0] # item[1] is distance (unused)

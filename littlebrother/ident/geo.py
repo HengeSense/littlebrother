@@ -1,6 +1,6 @@
 #-*- coding: UTF-8
 
-import config
+import ident.config
 import itertools
 import re
 import shelve
@@ -10,13 +10,13 @@ class DB(object):
 	
 	def __init__(self):
 		self.cities = shelve.open(
-			config.geo_db.get('cities', 'cities_ru/db/cities.shelve')
+			ident.config.geo_db.get('cities', 'cities_ru/db/cities.shelve')
 			, flag = 'r')
 		self.regions = shelve.open(
-			config.geo_db.get('regions', 'cities_ru/db/regions.shelve')
+			ident.config.geo_db.get('regions', 'cities_ru/db/regions.shelve')
 			, flag = 'r')
 		self.world = shelve.open(
-			config.geo_db.get('world', 'cities_ru/db/world.shelve')
+			ident.config.geo_db.get('world', 'cities_ru/db/world.shelve')
 			, flag = 'r')
 
 
@@ -39,13 +39,13 @@ composite_region_finder = re.compile(
 def geo_key(word):
 	'''Covert word to shelve key as created by makedb.py'''
 	return word.upper().replace(u'Ё', u'Е').encode(
-		config.geo_db.get('encoding', 'UTF-16'))
+		ident.config.geo_db.get('encoding', 'UTF-16'))
 
 
 def geo_value(value):
 	'''Convert shelve value back to Python (unicode) object'''
 	return unicode(value.decode(
-		config.geo_db.get('encoding', 'UTF-16')))
+		ident.config.geo_db.get('encoding', 'UTF-16')))
 
 
 def cities(plain_text):
