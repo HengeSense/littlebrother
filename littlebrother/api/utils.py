@@ -3,12 +3,12 @@
 import re
 
 sql_validator = re.compile(
-	ur"""^[0-9a-zа-яё /\.,'"-]+$""", 
-	re.UNICODE | re.IGNORECASE | re.VERBOSE)
+	ur"""^[0-9a-zа-яё /\.,'"-]+$"""
+	, re.UNICODE | re.IGNORECASE | re.VERBOSE)
 
 sql_escaper = re.compile(
-	ur"""[^0-9a-zа-яё /\.,'"-]""", 
-	re.UNICODE | re.IGNORECASE | re.VERBOSE)
+	ur"""[^0-9a-zа-яё /\.,'"-]"""
+	, re.UNICODE | re.IGNORECASE | re.VERBOSE)
 
 
 def sql_valid(string):

@@ -1,6 +1,5 @@
 #-*- coding: UTF-8
 
-from api.query import QueryError
 import api.config
 import cgi
 import web.config

@@ -2,6 +2,7 @@ PYTHON=`which python`
 PYTHONPATH=$$PYTHONPATH:./littlebrother/
 PEP8_ARGS=--ignore W191,W291,E501,E201,E202,E203,E251
 SRC= \
+	littlebrother/ident/utils.py \
 	littlebrother/ident/metaphone_ru.py \
 	littlebrother/ident/names.py \
 	littlebrother/ident/orgs.py \

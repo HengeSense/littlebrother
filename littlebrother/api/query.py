@@ -294,7 +294,7 @@ def pack(frontend, args):
 		offset = int(args.get('offset', ['0'])[0])
 		pattern = args.get('pattern', [None])[0]
 	except Exception, e:
-		raise LittleApplicationError('Invalid argument: ' + str(e))
+		raise QueryError('Invalid argument: ' + str(e))
 	
 	if not ident or not ident[0]:
 		raise QueryError("Invalid argument: 'ident' can not be empty")

@@ -130,7 +130,7 @@ if __name__ == '__main__':
 		
 		def testTail(self):
 			testcase = "<p>был Петров Иван<br />стал Иванов Пётр</p>"
-			title, identities = parse_file(
+			_, identities = parse_file(
 				StringIO.StringIO(testcase), 
 				((ident.names.identities, 'test'), ))
 			

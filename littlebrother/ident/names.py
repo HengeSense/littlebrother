@@ -2,21 +2,13 @@
 
 from morphy.contrib import lastnames_ru
 import ident.config
+import ident.utils
 import pymorphy
 import re
 
 name_pattern = re.compile(u'^[А-ЯЁ][а-яё]+$')
 max_rate = 5
 no_rate = -1
-
-splitter = re.compile(r'([,\.!\?:;\s\n\t])', re.UNICODE)
-
-
-def tokenize(string):
-	'''Split string to words'''
-	return [ 
-		item.strip() for item in splitter.split(string) if len(item.strip()) > 0 
-	]
 
 
 def morph_word(string):
@@ -159,7 +151,7 @@ def identities(plain_text):
 
 	ret = []
 
-	tokens = tokenize(plain_text)
+	tokens = ident.utils.tokenize(plain_text)
 	tokens_len = len(tokens)
 	
 	skip = 0
@@ -259,15 +251,6 @@ def identities(plain_text):
 
 if __name__ == '__main__':
 	import unittest
-	
-	class TokenizerTest(unittest.TestCase):
-		
-		def testIt(self):
-			tokens = [ u'хуй', u'пизда', u'анархия' ]
-			dirty_tokens = [ token + u'!' for token in tokens ]
-			
-			assert(tokenize(' '.join(tokens)) == tokens)
-			assert(len(tokenize(' '.join(dirty_tokens))) == len(tokens) * 2)
 
 	class MorphWordTest(unittest.TestCase):
 		word = u'Пётр'

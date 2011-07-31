@@ -210,7 +210,6 @@ def add_record(database, (title1, tag1), (title2, tag2), ref, ref_title, distanc
 def collect(text):
 	'''Collect records from text'''
 	
-	title = None
 	providers = crawling.config.gather.get('providers', ())
 	
 	title, identities = html.lxmlp.parse_file(StringIO.StringIO(text), providers)
