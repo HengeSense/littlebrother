@@ -2,12 +2,14 @@
 
 import re
 
+sql_valid_chars = ur"""0-9a-zа-яё /\.,'"-:"""; 
+
 sql_validator = re.compile(
-	ur"""^[0-9a-zа-яё /\.,'"-]+$"""
+	ur"""^[""" + sql_valid_chars + """]+$"""
 	, re.UNICODE | re.IGNORECASE | re.VERBOSE)
 
 sql_escaper = re.compile(
-	ur"""[^0-9a-zа-яё /\.,'"-]"""
+	ur"""[^""" + sql_valid_chars + """]"""
 	, re.UNICODE | re.IGNORECASE | re.VERBOSE)
 
 
