@@ -1,6 +1,6 @@
 #-*- coding: UTF-8
 
-from morphy.contrib import lastnames_ru
+from pymorphy.contrib import lastnames_ru
 import ident.config
 import ident.utils
 import pymorphy
@@ -67,10 +67,18 @@ class Morph(object):
 	
 	def lastname_normal_form(self, word, gender_tag):
 		'''Returns normal form of last name'''
-		return lastnames_ru.lastname_normal_form_ru(self.morph, morph_word(word), gender_tag)
+		return lastnames_ru.normalize(self.morph, morph_word(word), gender_tag)
 	
 	def decline_lastname(self, word, gender_tag):
-		return lastnames_ru.decline_lastname_ru(morph_word(word), gender_tag)
+		forms = lastnames_ru.decline(morph_word(word))
+		
+		filtered = []
+		for form in forms:
+			info = form.get('info', '')
+			if gender_tag in info and u'ед' in info:
+				filtered.append(form)
+		
+		return filtered
 	
 	def get_graminfo(self, word):
 		return self.morph.get_graminfo(morph_word(word))
@@ -122,7 +130,7 @@ def identities(plain_text):
 		decline_rate = None
 		
 		# check if it's surname as lastname_normal_form_ru does
-		for item in lastnames_ru.decline_lastname_ru(word, gender_tag):
+		for item in morph.decline_lastname(word, gender_tag):
 			if item.get('word', '') == word:
 				decline_rate = (item.get('norm', word), max_rate)
 				break
@@ -130,10 +138,10 @@ def identities(plain_text):
 		# ok, given gender didn't match
 		# but try other gender, in case if gender mismatched
 		fixed_gender_tag = (gender_tag == u'мр' and u'жр' or u'мр')
-		for index, item in enumerate(lastnames_ru.decline_lastname_ru(word, fixed_gender_tag)):
+		for index, item in enumerate(morph.decline_lastname(word, fixed_gender_tag)):
 			if item.get('word', '') == word:
 				# yes, we've found result, but we need to return result from original gender
-				decline_rate = (lastnames_ru.decline_lastname_ru(word, gender_tag)[index]['norm'], max_rate)
+				decline_rate = (morph.decline_lastname(word, gender_tag)[index]['norm'], max_rate)
 				break
 		
 		# additionally check for middle name and if it is, then reset rate
