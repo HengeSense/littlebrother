@@ -1,61 +1,61 @@
-<!DOCTYPE html PUBLIC 
-	"-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!DOCTYPE html PUBLIC
+	"-//W3C//DTD XHTML 1.0 Transitional//EN"
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-	
+
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
-		<meta 
-			http-equiv="Content-Type" 
+		<meta
+			http-equiv="Content-Type"
 			content="text/html; charset=UTF-8" />
 		<title>
-			Стая:&nbsp;</title>	
-			
-		<link 
-			rel="stylesheet" 
-			type="text/css" 
+			Стая:&nbsp;</title>
+
+		<link
+			rel="stylesheet"
+			type="text/css"
 			href="/css/jquery-ui-1.8.13.custom.css" />
-		<link 
-			rel="stylesheet" 
-			type="text/css" 
+		<link
+			rel="stylesheet"
+			type="text/css"
 			href="/css/ui/common.css" />
-		<link 
-			rel="stylesheet" 
-			type="text/css" 
+		<link
+			rel="stylesheet"
+			type="text/css"
 			href="/css/ui/pack.css" />
-		<script 
-			type="text/javascript" 
+		<script
+			type="text/javascript"
 			src="/js/jquery-1.6.1.min.js"></script>
-		<script 
-			type="text/javascript" 
+		<script
+			type="text/javascript"
 			src="/js/jquery-ui-1.8.13.custom.min.js"></script>
-		<script 
-			type="text/javascript" 
+		<script
+			type="text/javascript"
 			src="/js/jquery.littlebrother.proto.js"></script>
-		<script 
-			type="text/javascript" 
+		<script
+			type="text/javascript"
 			src="/js/ui/common.js"></script>
-		<script 
-			type="text/javascript" 
+		<script
+			type="text/javascript"
 			src="/js/ui/messages.js"></script>
-		<script 
-			type="text/javascript" 
+		<script
+			type="text/javascript"
 			src="/js/ui/query.js"></script>
-		<script 
-			type="text/javascript" 
+		<script
+			type="text/javascript"
 			src="/js/ui/pack.js"></script>
-		<script 
+		<script
 			type="text/javascript">
 			$(document).ready(function() {
 				initPackUI($(document));
 			});
 		</script>
 		<noscript>
-			<meta 
-				http-equiv="refresh" 
+			<meta
+				http-equiv="refresh"
 				content="0;url=/noscript.html" />
 		</noscript>
 	</head>
-	
+
 	<body>
 		<div id="header_block">
 			<div id="header_row">
@@ -65,94 +65,94 @@
 							На главную</button>
 					</a>
 				</div>
-				
+
 				<div id="query_block">
-					<form 
-						id="query_form" 
-						action="/pack.html" 
+					<form
+						id="query_form"
+						action="/pack.html"
 						method="get">
-						
-						<input 
-							id="query" 
-							name="bro" 
-							value="Напечатай в меня" 
-							type="text" 
+
+						<input
+							id="query"
+							name="bro"
+							value="Напечатай в меня"
+							type="text"
 							autocomplete="off" />
 						<input
 							id="query_tag"
 							type="text"
 							autocomplete="off" />
-						<button 
+						<button
 							id="submit">Нажми меня</button>
 					</form>
 				</div>
 			</div>
 		</div>
-		
+
 		<div id="errors"></div>
-		
+
 		<div id="pack_block">
 			<div id="broname"></div>
-			
+
 			<div id="buttons_block">
 				<span id="connections_type">
-					<input 
-						type="radio" 
-						id="show_all" 
+					<input
+						type="radio"
+						id="show_all"
 						name="connections_type"/>
-					<label 
+					<label
 						for="show_all"
 						title="Показать все связи">Все</label>
-					<input 
-						type="radio" 
-						id="show_names" 
+					<input
+						type="radio"
+						id="show_names"
 						name="connections_type"/>
-					<label 
+					<label
 						for="show_names"
 						title="Показать связи с людьми">Люди</label>
-					<input 
-						type="radio" 
-						id="show_orgs" 
+					<input
+						type="radio"
+						id="show_orgs"
 						name="connections_type"/>
-					<label 
-						for="show_orgs" 
+					<label
+						for="show_orgs"
 						title="Показать связи с организациями">Организации</label>
 				</span>
-				
+
 				<span id="level_num">
-					<input 
-						type="radio" 
-						id="level_all" 
+					<input
+						type="radio"
+						id="level_all"
 						name="level_num"/>
-					<label 
+					<label
 						for="level_all"
 						title="Показать все связи">Все</label>
-					<input 
-						type="radio" 
-						id="level_1" 
+					<input
+						type="radio"
+						id="level_1"
 						name="level_num"/>
-					<label 
+					<label
 						for="level_1"
 						title="Показывать только прямые связи">Родные</label>
-					<input 
-						type="radio" 
-						id="level_2" 
+					<input
+						type="radio"
+						id="level_2"
 						name="level_num"/>
-					<label 
+					<label
 						for="level_2"
 						title="Показывать только непрямые связи">Двоюродные</label>
 				</span>
 			</div>
-			
+
 			<div id="connections_pattern_block">
-				<input 
-					id="connections_pattern" 
-					value="Поиск по связям" 
-					type="text" 
+				<input
+					id="connections_pattern"
+					value="Поиск по связям"
+					type="text"
 					autocomplete="off" />
 				<br />
 			</div>
-			
+
 			<div id="bropack"></div>
 		</div>
 	</body>
