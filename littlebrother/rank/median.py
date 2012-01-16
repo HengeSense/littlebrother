@@ -7,28 +7,28 @@
 
 def median(freqs):
 	"""Median from list of numbers and their frequencies"""
-	
+
 	samples = 0
-	
+
 	for (number, freq) in freqs:
 		samples += freq
-	
+
 	samples_median = samples / 2.0
-	
+
 	current_samples = 0
 	for (number, freq) in freqs:
 		current_samples += freq
 		if current_samples >= samples_median:
 			return number
-	
+
 	return 0
 
 
 if __name__ == '__main__':
 	import unittest
-	
+
 	class MedianTest(unittest.TestCase):
-		
+
 		def testIt(self):
 			assert(median(((2, 3),)) == 2.0)
 			assert(median(((2, 3), (3, 3),)) == 2)

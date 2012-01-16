@@ -7,9 +7,9 @@ xpath_index = re.compile(u'\[(\d+)\]')
 
 
 def xpath_distance(xpath_a, xpath_b):
-	''' 
+	'''
 	Calculates distance between two XPath nodes
-	
+
 	Distance between /div/p[1] and /div/p[1] is 0
 	Distance between /div/p[1] and /div/p[2] is 1
 	'''
@@ -68,14 +68,14 @@ class RankException(Exception):
 
 def rank(distance):
 	'''Return rank from 1 to 10 based on XPath distance
-	
+
 	Distance 0 is rank 10
 	Distance 1 is rank 9
 	Distance more than (or equal to) 10 is rank 1
 	'''
 	if distance < 0:
 		raise RankException('the fuck?')
-	
+
 	return min(10, max(11 - distance, 1))
 
 if __name__ == '__main__':
@@ -83,15 +83,15 @@ if __name__ == '__main__':
 
 	class DistanceTest(unittest.TestCase):
 		distances = [
-			('/div/p[0]', '/div/p[0]', 0), 
-			('/div/p[0]', '/div/p[1]', 1), 
-			('/div/p[0]', '/div/p[2]', 2), 
-			('/div/p[1]', '/div/p[2]', 1), 
-			('/div/p[1]', '/div/p[1]/p[0]', 1), 
-			('/div', '/div/p[0]', 1), 
-			('/div', '/div/p[1]', 2), 
-			('/div', '/div/p[1]/p[0]', 3), 
-			('/div', '/div/p[1]/p[2]', 5), 
+			('/div/p[0]', '/div/p[0]', 0),
+			('/div/p[0]', '/div/p[1]', 1),
+			('/div/p[0]', '/div/p[2]', 2),
+			('/div/p[1]', '/div/p[2]', 1),
+			('/div/p[1]', '/div/p[1]/p[0]', 1),
+			('/div', '/div/p[0]', 1),
+			('/div', '/div/p[1]', 2),
+			('/div', '/div/p[1]/p[0]', 3),
+			('/div', '/div/p[1]/p[2]', 5),
 		]
 
 		def testDistance(self):
@@ -104,13 +104,13 @@ if __name__ == '__main__':
 			assert(rank(10) == 1)
 			assert(rank(11) == 1)
 			assert(rank(100) == 1)
-			
+
 			try:
 				rank(-1)
 				self.fail('Expected RankException')
 			except RankException:
 				pass
-			
+
 			try:
 				rank(-100)
 				self.fail('Expected RankException')

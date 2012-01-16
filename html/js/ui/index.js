@@ -1,7 +1,7 @@
 
 function showQueryError(args) {
 	var message = args['message'];
-	
+
 	showError({
 		message : message || format(query_error, args),
 		style : (message && 'centered' || '')
@@ -10,13 +10,13 @@ function showQueryError(args) {
 
 function showError(args) {
 	var message = args['message'] || '';
-	
+
 	if (!message) {
 		return;
 	}
-	
+
 	var style = args['style'];
-	
+
 	$('#errors')
 		.html($('<p>')
 			.html(message))
@@ -28,7 +28,7 @@ function showError(args) {
 
 function initIndexUI() {
 	initQueryBlock();
-	
+
 	$.bro.stats({
 		success : function fill_stats(stats) {
 			var total_idents = stats['total_idents'];
@@ -42,7 +42,7 @@ function initIndexUI() {
 			var bottom_name = stats['bottom_name'];
 			var top_org = stats['top_org'];
 			var bottom_org = stats['bottom_org'];
-			
+
 			$('#total_idents').html(total_idents || '0');
 			$('#total_names').html(total_names || '0');
 			$('#total_orgs').html(total_orgs || '0');
@@ -60,7 +60,7 @@ function initIndexUI() {
 			$('#bottom_org').append($('<a>')
 				.attr('href', profileLink({ title : bottom_org, tag : 'orgs' }))
 				.html(bottom_org || ''));
-		}, 
+		},
 		error : function (jqXHR) {
 			showError({
 				message : format(general_failure, {
@@ -69,10 +69,10 @@ function initIndexUI() {
 			});
 		}
 	});
-	
+
 	$('#privacy')
 		.hide();
-	
+
 	$('#info_block')
 		.append(
 			$('<a>')
@@ -81,7 +81,7 @@ function initIndexUI() {
 				.click(function (event) {
 					event.preventDefault();
 					event.stopPropagation();
-					
+
 					if (!$('#privacy').is(':visible')) {
 						$('#privacy').slideDown();
 					} else {

@@ -7,23 +7,23 @@
 
 def average(freqs):
 	"""Average from list of numbers and their frequencies"""
-	
+
 	avg = 0.0
 	samples = 0
-	
+
 	for (number, freq) in freqs:
 		if freq > 0:
 			avg = (avg * samples + number * freq) / (samples + freq)
 			samples += freq
-	
+
 	return avg
 
 
 if __name__ == '__main__':
 	import unittest
-	
+
 	class AverageTest(unittest.TestCase):
-		
+
 		def testIt(self):
 			assert(average(((2, 3),)) == 2.0)
 			assert(average(((2, 3), (3, 3),)) == 2.5)

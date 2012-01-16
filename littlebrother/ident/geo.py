@@ -7,7 +7,7 @@ import shelve
 
 
 class DB(object):
-	
+
 	def __init__(self):
 		self.cities = shelve.open(
 			ident.config.geo_db.get('cities', 'cities_ru/db/cities.shelve')
@@ -25,7 +25,7 @@ db = DB()
 location_name_pattern = ur'[А-ЯЁ][а-яёА-ЯЁ\-]+'
 
 # this should be greed about second part (as in "Нижний Новгород"), so names
-# like "Владимир Путин" will be fully consumed and "Владимир" won't hit geo db 
+# like "Владимир Путин" will be fully consumed and "Владимир" won't hit geo db
 city_finder = re.compile(
 	ur'(%s)(\s+%s)?' % (location_name_pattern, location_name_pattern, )
 	, re.UNICODE)
@@ -53,12 +53,12 @@ def geo_value(value):
 
 def discard_candidate(plain_text, candidate, start_pos):
 #	print plain_text, candidate, start_pos
-	
+
 	# ignore candidates at the beginning of the text
 	# case: Московский комитет...
 	if start_pos == 0:
 		return True
-	
+
 	# ignore candidates at the beginning of the phrase
 	match = re.match(ur'''.*[\,\.\!\?\-\—\;\:\"\'\`\(\)\[\]]\s*(%s)''' % candidate, plain_text)
 	if match:
@@ -67,25 +67,25 @@ def discard_candidate(plain_text, candidate, start_pos):
 
 def cities(plain_text):
 	'''Extract cities'''
-	
+
 	candidates = city_finder.finditer(plain_text)
 	if not candidates:
 		return []
-	
+
 	result = []
 	for match_object in candidates:
 		candidate = (match_object.group(0).strip())
-		
+
 		if discard_candidate(plain_text, candidate, match_object.start(0)):
 #			print 'discarding', candidate
 			continue
-		
+
 		key = geo_key(candidate)
-		
+
 		if key in db.cities:
 			value = geo_value(db.cities[key])
 			result.append(value)
-	
+
 	return list(set(result))
 
 
@@ -94,41 +94,41 @@ def regions(plain_text):
 	Extract regions.
 	Also do lookup for city's region if found any in plain_text.
 	'''
-	
+
 	result = []
-	text = plain_text[:] # FIXME: not sure about memory copying
-	
+	text = plain_text[:]  # FIXME: not sure about memory copying
+
 	# search for regions first
 	# if any - remove it from text to exclude misoperations during cities search
-	
+
 	simple_candidates = simple_region_finder.findall(text)
 	composite_candidates = composite_region_finder.findall(text)
-	
+
 	if simple_candidates or composite_candidates:
 		for candidate in itertools.chain(simple_candidates, composite_candidates):
 			key = geo_key(candidate.strip())
-			
+
 			if key in db.regions:
 				value = geo_value(db.regions[key])
 				text = text.replace(candidate, '')
 				result.append(value)
-	
+
 	found_cities = cities(text)
 	for city in found_cities:
 		key = geo_key(city)
 		region = db.world.get(r'cit-%r' % (key, ), None)
-		
+
 		if region:
 				result.append(geo_value(region))
-	
+
 	return list(set(result))
 
 
 if __name__ == '__main__':
 	import unittest
-	
+
 	class GeoTest(unittest.TestCase):
-		
+
 		def testCities(self):
 			testcases = (
 				(u'Пиотровский предрек Санкт-Петербургу путь Венеции', u'Санкт-Петербург'),
@@ -136,10 +136,10 @@ if __name__ == '__main__':
 				(u'суд Нижнего Новгорода отказался удовлетворить иск группы нижегородцев', u'Нижний Новгород'),
 				(u'Так, на участках Санкт-Петербург - Москва (по которым курсируют', u'Санкт-Петербург'),
 			)
-			
+
 			for testcase, expected in testcases:
 				assert(expected.upper() in cities(testcase))
-		
+
 		def testRegions(self):
 			testcases = (
 				(u'Пиотровский предрек Санкт-Петербургу путь Венеции', u'Санкт-Петербург'),
@@ -150,21 +150,21 @@ if __name__ == '__main__':
 				(u'расположенные в Приморском крае:', u'Приморский край'),
 				(u'во Владивостоке и селе Чугуевка', u'Приморский край'),
 			)
-			
+
 			for testcase, expected in testcases:
 				assert(expected.upper() in regions(testcase))
-	
+
 		def testMisoperations(self):
 			testcases = (
 #				u'Московский комитет по культурному наследию', # Московский, Московская область
-				u'Владимир Путин', # Владимир, Владимирская область
-				u'Путин Владимир', # Владимир, Владимирская область
-				u'В РОТ Фронт. — Московский комсомолец', # Московский, Московская область
+				u'Владимир Путин',  # Владимир, Владимирская область
+				u'Путин Владимир',  # Владимир, Владимирская область
+				u'В РОТ Фронт. — Московский комсомолец',  # Московский, Московская область
 				u'Как сообщается в публикации "Московского комсомольца"',
 				u'в этом году сообщали банк "Открытие", Московский банк реконструкции'
 			)
-			
+
 			for testcase in testcases:
 				assert(len(cities(testcase)) == 0)
-	
+
 	unittest.main()

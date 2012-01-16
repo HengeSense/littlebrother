@@ -5,12 +5,12 @@ import simplejson
 
 def dump(data):
 	"""Dumps list to JSON format"""
-	
+
 	yield '['
 	for index, chunk in enumerate(data):
 		if index > 0:
 			yield ','
-		
+
 		yield simplejson.dumps(chunk, separators = (',', ':'))
 	yield ']'
 

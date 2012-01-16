@@ -27,7 +27,7 @@ endings_replace = (
 	(re.compile(ur'(УК|ЮК)$', re.UNICODE), ur'0'),
 	(re.compile(ur'(ЕН|ЕНА|ИН|ИНА)$', re.UNICODE), ur'1'), 
 	(re.compile(ur'(ИК|ЕК)$', re.UNICODE), ur'2'), 
-	(re.compile(ur'(КО)$', re.UNICODE), ur'3'), # was 'НКО' in original 
+	(re.compile(ur'(КО)$', re.UNICODE), ur'3'),  # was 'НКО' in original 
 	(re.compile(ur'(ОВ|ЕВ|ИЕВ|ЕЕВ|ОВА|ЕВА|ИЕВА|ЕЕВА)$', re.UNICODE), ur'4'), 
 	(re.compile(ur'(ЫХ|ИХ)$', re.UNICODE), ur'5'), 
 	(re.compile(ur'(ИЙ|ЫЙ|АЯ)$', re.UNICODE), ur'6'), 
@@ -76,7 +76,6 @@ def metaphone(text):
 		'''
 		return apply_regexps(text, (doubles_replace, ))
 
-
 	return postprocess(process(preprocess(text)))
 
 
@@ -84,7 +83,7 @@ if __name__ == '__main__':
 	# performance test
 	import sys
 	import time
-	
+
 	samples = 10000
 	start = time.time()
 	for i in xrange(samples):
@@ -98,11 +97,11 @@ if __name__ == '__main__':
 	import unittest
 
 	class MetaphoneRuTest(unittest.TestCase):
-		
+
 		def testVowels(self):
 			assert(metaphone(u'БАУЭР') == metaphone(u'БАУЕР') == u'БАУИР')
 			assert(metaphone(u'ЗИЦЕР') == metaphone(u'ЗИЦИР') == u'ЗИЦИР')
-		
+
 		def testConsonants(self):
 			assert(metaphone(u'ЛАГ') == metaphone(u'ЛАК') == u'ЛАК')
 			assert(metaphone(u'ГУДЗ') == metaphone(u'ГУТС') == u'ГУТС')
@@ -110,13 +109,13 @@ if __name__ == '__main__':
 			assert(metaphone(u'ГЕФТ') == metaphone(u'ГЕВТ') == u'ГИФТ')
 			# В оригинале ожидается 'БОФТ', но А -> О
 			assert(metaphone(u'БОВТ') == metaphone(u'БОФТ') == u'БАФТ')
-		
+
 		def testDoubles(self):
 			assert(metaphone(u'БОПП') == metaphone(u'БОП') == u'БАП')
 			assert(metaphone(u'МЕТРЕВЕЛИ') == metaphone(u'МЕТРЕВЕЛЛИ') == u'МИТРИВИЛИ')
 			assert(metaphone(u'ШМИДТ') == metaphone(u'ШМИТ') == u'ШМИТ')
-		
-		def testEndings(self): # includes misspelling test
+
+		def testEndings(self):  # includes misspelling test
 			assert(metaphone(u'ОГОЛЬЦОВА') == metaphone(u'АГАЛЬЦОВА') == u'АГАЛЦ4')
 			# В оригинале ожидается 'ГРИЦ', но Г -> К
 			assert(metaphone(u'ГРИЦЮК') == metaphone(u'ГРИЦУК') == u'КРИЦ0')

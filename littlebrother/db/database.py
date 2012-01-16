@@ -12,7 +12,7 @@ master_db_ro = None
 def get_frontend_db_rw():
 	"""Connect to frontend DB in rw mode"""
 	global frontend_db_rw
-	
+
 	if not frontend_db_rw:
 		frontend_db_rw = db.sqldb.SqlDB(
 			db.config.database.get('frontend_url', ''),
@@ -24,7 +24,7 @@ def get_frontend_db_rw():
 def get_frontend_db_ro():
 	"""Connect to frontend DB in ro mode"""
 	global frontend_db_ro
-	
+
 	if not frontend_db_ro:
 		frontend_db_ro = db.sqldb.SqlDB(
 			db.config.database.get('frontend_url', ''),
@@ -35,7 +35,7 @@ def get_frontend_db_ro():
 def get_master_db_rw():
 	"""Connect to master DB in rw mode"""
 	global master_db_rw
-	
+
 	if not master_db_rw:
 		master_db_rw = db.sqldb.SqlDB(
 			db.config.database.get('master_url', ''),
@@ -47,7 +47,7 @@ def get_master_db_rw():
 def get_master_db_ro():
 	"""Connect to master DB in ro mode"""
 	global master_db_ro
-	
+
 	if not master_db_ro:
 		master_db_ro = db.sqldb.SqlDB(
 			db.config.database.get('master_url', ''),
