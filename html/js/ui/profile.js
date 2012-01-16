@@ -1,6 +1,4 @@
 
-var page_bros = [];
-
 var connections_current_page = 0;
 var connections_limit = 20;
 
@@ -16,14 +14,14 @@ var titles_pattern = '';
 var current_tag = undefined;
 
 (function($) {
-	$.fn.makebro = function(title, bros) {
+	$.fn.makebro = function(bro, bros) {
 		var html = $('<span>')
 			.addClass('controls');
 		
-		if (bros && bros.length < 3) {
+		if (bros) {
 			html.append($('<a>')
 				.addClass('broplus_link')
-				.attr('href', broplusLink(title, bros))
+				.attr('href', broplusLink($.extend(bro, { bros : bros })))
 				.attr('title', broplus_title)
 				.button({
 					icons : {
@@ -35,7 +33,7 @@ var current_tag = undefined;
 		
 		html.append($('<a>')
 			.addClass('pack_link')
-			.attr('href', packLink(title))
+			.attr('href', packLink(bro))
 			.attr('title', packlink_title)
 			.button({
 				icons : {
@@ -44,8 +42,7 @@ var current_tag = undefined;
 				text : false
 			}));
 		
-		html
-			.addClass('invisible')
+		html.addClass('invisible')
 			.prependTo($(this));
 		
 		$(this).mouseenter(function (event) {
@@ -164,7 +161,7 @@ function loadConnections(success) {
 	$('#connections_nav').buttonset('disable');
 	
 	$.bro.connections({
-		bros : page_bros, 
+		bros : pageBros('bros'), 
 		pattern : connections_pattern, 
 		limit : connections_limit, 
 		tag : current_tag, 
@@ -217,14 +214,14 @@ function fillConnections(bros) {
 	var replacement_ul = $('<ul>');
 	$.each(bros, function (title, args) {
 		$('<li>')
-			.attr('class', args['tag'])
+			.attr('class', args.tag)
 			.append($('<a>')
-				.attr('href', profileLink(title))
+				.attr('href', profileLink(args))
 				.html(title))
 			.append($('<span>')
 				.attr('class', 'goggles')
 				.html('&nbsp;' + args['score']))
-			.makebro(title, page_bros)
+			.makebro(args, urlParam('bros'))
 			.appendTo(replacement_ul);
 	});
 	
@@ -275,7 +272,7 @@ function loadUrls(success) {
 	}
 	
 	$.bro.urls({
-		bros : page_bros, 
+		bros : pageBros('bros'), 
 		titles_pattern : titles, 
 		domain_pattern : domain, 
 		offset : urls_current_page * urls_limit,
@@ -402,7 +399,7 @@ function initUrlsPatternBlock() {
 			|| 'query_normal')
 		.addClass('ui-widget-content ui-widget');
 }
-
+/*
 function fillFuzzyNames(options) {
 	var fuzzy_names = $('#fuzzynames');
 	var ul = $('#fuzzynames > ul');
@@ -413,7 +410,7 @@ function fillFuzzyNames(options) {
 	
 	var filtered_names = {};
 	$.each(options, function (title, args) {
-		if ($.inArray(title, page_bros) < 0) {
+		if ($.inArray(title, pageBros) < 0) {
 			filtered_names[title] = args;
 		}
 	});
@@ -434,7 +431,7 @@ function fillFuzzyNames(options) {
 		$('#fuzzynames_block').show().fadeIn();
 	}
 }
-
+*/
 function initProfileUI() {
 	initQueryBlock();
 	
@@ -447,10 +444,12 @@ function initProfileUI() {
 	initConnectionsPatternBlock();
 	initUrlsPatternBlock();
 	
-	page_bros = urlParam('bros').split(',');
+	var page_bros = pageBros('bros');
 	
-	document.title += page_bros.join(', ');
-
+	$.each(page_bros, function (index, bro) {
+		document.title += (index > 0 && ', ' || '')  + bro.title;		
+	});
+	
 	if (page_bros.length > 1) {
 		var names_block = $('#broname');
 		$.each(page_bros, function (index, bro) {
@@ -458,7 +457,7 @@ function initProfileUI() {
 				.append($('<div>')
 					.append($('<a>')
 						.attr('href', profileLink(bro))
-						.html(bro))
+						.html(bro.title))
 					.makebro(bro));
 			
 			if (index < page_bros.length - 1) {
@@ -468,12 +467,13 @@ function initProfileUI() {
 	} else {
 		$('#broname')
 			.append($('<div>')
-				.html(page_bros[0])
+				.html(page_bros[0].title)
 				.makebro(page_bros[0]));
 	}
 	
 	$('#fuzzynames_block').hide()
 	
+	/*
 	if (page_bros.length == 1) {
 		$.bro.fuzzyIdents({
 			pattern : (page_bros[0].search(' ') 
@@ -484,6 +484,7 @@ function initProfileUI() {
 			}
 		});
 	}
+	*/
 	
 	reloadConnections(function (bros) {
 		connectionsLoadSuccess(bros);

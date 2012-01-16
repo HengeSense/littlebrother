@@ -1,5 +1,4 @@
 
-var page_bros = [];
 var current_tag = undefined;
 var current_level = undefined;
 var default_connections_pattern_val = '';
@@ -11,10 +10,10 @@ var connections_pattern = '';
 		
 		var outer = $('<div>');
 		$.each(cloud, function (ident, args) {
-			var title = args['title'];
-			var weight = args['weight'];
-			var tag = args['tag'];
-			var level = args['level'];
+			var title = args['title'] || '';
+			var weight = args['weight'] || '';
+			var tag = args['tag'] || '';
+			var level = args['level'] || '';
 			
 			var span = $('<span>')
 				.addClass(tag)
@@ -22,7 +21,7 @@ var connections_pattern = '';
 				.addClass('lv' + level)
 				.addClass('s' + scale(weight))
 				.append($('<a>')
-					.attr('href', packLink(title))
+					.attr('href', packLink(args))
 					.html(title))
 				.append($('<span>')
 					.attr('class', 'goggles')
@@ -43,12 +42,12 @@ var connections_pattern = '';
 		return $(this);
 	};
 	
-	$.fn.makebro = function(title) {
+	$.fn.makebro = function(args) {
 		var html = $('<span>')
 			.addClass('controls')
 			.append($('<a>')
 				.addClass('profile_link')
-				.attr('href', profileLink(title))
+				.attr('href', profileLink(args))
 				.attr('title', profilelink_title)
 				.button({
 					icons : {
@@ -151,7 +150,7 @@ function packLoadError(jqXHR) {
 
 function loadPack(success) {
 	$.bro.pack({
-		bro : page_bros[0], 
+		bro : pageBros('bro')[0], 
 		tag : current_tag, 
 		pattern : connections_pattern,
 		success : (success || packLoadSuccess),
@@ -251,13 +250,13 @@ function initPackUI() {
 	
 	initConnectionsPatternBlock();
 
-	page_bros = [ urlParam('bro') ];
+	page_bros = pageBros('bro');
 	
-	document.title += page_bros.join(', ');
+	document.title += page_bros[0].title;
 
 	$('#broname')
 		.append($('<div>')
-			.html(page_bros[0])
+			.html(page_bros[0].title)
 			.makebro(page_bros[0]));
 	
 	$('#show_names')

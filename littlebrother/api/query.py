@@ -8,12 +8,25 @@ import db.database
 import db.sqldb
 import ident.metaphone_ru
 import itertools
+import re
 
+
+name_from_url_regex = re.compile(ur'(.*):(.*)', re.IGNORECASE | re.UNICODE)
 
 class QueryError(Exception):
 	pass
 
+def name_from_url(string):
+	result = name_from_url_regex.search(string)
+	if result:
+		return { 'title' : result.group(1), 'tag' : result.group(2) }
 
+def get_ident(database, title, tag):
+	return database.query(db.sqldb.Ident)\
+		.filter(db.sqldb.Ident.title == title)\
+		.filter(db.sqldb.Ident.tag == tag)\
+		.one()
+		
 def idents(frontend, args):
 	'''
 	List identities according to pattern
@@ -22,6 +35,7 @@ def idents(frontend, args):
 	
 	try:
 		pattern = args.get('pattern', [None])[0]
+		tag = args.get('tag', [None])[0]
 		offset = int(args.get('offset', ['0'])[0])
 		limit = int(args.get('limit', ['0'])[0])
 	except Exception, e:
@@ -45,7 +59,13 @@ def idents(frontend, args):
 	database = db.database.get_frontend_db_ro()
 	
 	db_idents = database.query(db.sqldb.Ident)\
-		.filter(db.sqldb.Ident.title.like(valid_pattern + '%'))\
+		.filter(db.sqldb.Ident.title.like(valid_pattern + '%'));
+		
+	if tag:
+		db_idents = db_idents\
+			.filter(db.sqldb.Ident.tag == tag);
+		
+	db_idents = db_idents\
 		.order_by(db.sqldb.Ident.score.desc())\
 		.offset(offset)\
 		.limit(limit) 
@@ -140,16 +160,14 @@ def connections(frontend, args):
 	if len(idents) > max_intersection_idents:
 		raise QueryError("Invalid argument: 'idents' list must include not more than " + str(max_intersection_idents) + " entries")
 	
-	valid_idents = [ api.utils.sql_escape(ident.decode(api.config.api.get('encoding', 'UTF-8'))) for ident in idents ]
+	valid_idents = [ name_from_url(api.utils.sql_escape(ident.decode(api.config.api.get('encoding', 'UTF-8')))) for ident in idents ]
 	for ident in valid_idents:
-		if not api.utils.sql_valid(ident):
+		if not api.utils.sql_valid(ident.get('title', u'')) or not api.utils.sql_valid(ident.get('tag', u'')):
 			raise QueryError('Invalid argument: ' + ident)
 	
 	database = db.database.get_frontend_db_ro()
 	
-	db_idents = database.query(db.sqldb.Ident.id)\
-		.filter(db.sqldb.Ident.title.in_(valid_idents))\
-		.all()
+	db_idents = [ get_ident(database, ident.get('title', u''), ident.get('tag', u'')) for ident in valid_idents ]
 	
 	if (len(db_idents) != len(valid_idents)):
 		invalid_idents = ( ident.encode(api.config.api.get('encoding', 'UTF-8')) for ident in valid_idents if ident not in ( ident.title for ident in db_idents ) )
@@ -158,7 +176,7 @@ def connections(frontend, args):
 	max_score = func.max(db.sqldb.Friend.score)
 	
 	db_connections = database.query(db.sqldb.Friend.ident_2_id, max_score)\
-		.filter(db.sqldb.Friend.ident_1_id.in_(db_idents))\
+		.filter(db.sqldb.Friend.ident_1_id.in_((ident.id for ident in db_idents)))\
 		.group_by(db.sqldb.Friend.ident_2_id)\
 		.having(func.count(db.sqldb.Friend.ident_2_id) == len(db_idents))\
 		.order_by(max_score.desc())
@@ -180,7 +198,7 @@ def connections(frontend, args):
 	connections_ids = ( connection.ident_2_id for connection in db_connections )
 	
 	result = database.query(db.sqldb.Friend)\
-		.filter(db.sqldb.Friend.ident_1_id == db_idents[0])\
+		.filter(db.sqldb.Friend.ident_1_id == db_idents[0].id)\
 		.filter(db.sqldb.Friend.ident_2_id.in_(connections_ids))\
 		.order_by(db.sqldb.Friend.score.desc())
 	
@@ -233,23 +251,21 @@ def urls(frontend, args):
 	if len(idents) > max_intersection_idents:
 		raise QueryError("Invalid argument: 'idents' list must include not more than " + str(max_intersection_idents) + " entries")
 	
-	valid_idents = [ api.utils.sql_escape(ident.decode(api.config.api.get('encoding', 'UTF-8'))) for ident in idents ]
+	valid_idents = [ name_from_url(api.utils.sql_escape(ident.decode(api.config.api.get('encoding', 'UTF-8')))) for ident in idents ]
 	for ident in valid_idents:
-		if not api.utils.sql_valid(ident):
+		if not api.utils.sql_valid(ident.get('title', u'')) or not api.utils.sql_valid(ident.get('tag', u'')):
 			raise QueryError('Invalid argument: ' + ident)
 	
 	database = db.database.get_frontend_db_ro()
 	
-	db_idents = database.query(db.sqldb.Ident.id)\
-		.filter(db.sqldb.Ident.title.in_(valid_idents))\
-		.all()
+	db_idents = [ get_ident(database, ident.get('title', u''), ident.get('tag', u'')) for ident in valid_idents ]
 	
 	if (len(db_idents) != len(valid_idents)):
 		invalid_idents = ( ident.encode(api.config.api.get('encoding', 'UTF-8')) for ident in valid_idents if ident not in ( ident.title for ident in db_idents ) )
 		raise QueryError('Invalid argument(s): ' + ', '.join(invalid_idents))
 	
 	db_web = database.query(db.sqldb.Web.url_id)\
-		.filter(db.sqldb.Web.ident_id.in_(db_idents))\
+		.filter(db.sqldb.Web.ident_id.in_(( ident.id for ident in db_idents )))\
 		.group_by(db.sqldb.Web.url_id)\
 		.having(func.count(db.sqldb.Web.url_id) == len(db_idents))
 	
@@ -269,7 +285,7 @@ def urls(frontend, args):
 	url_ids = ( web.url_id for web in db_web )
 	
 	result = database.query(db.sqldb.Web)\
-		.filter(db.sqldb.Web.ident_id == db_idents[0])\
+		.filter(db.sqldb.Web.ident_id == db_idents[0].id)\
 		.filter(db.sqldb.Web.url_id.in_(url_ids))\
 		.order_by(db.sqldb.Web.url_id)
 	
@@ -289,19 +305,19 @@ def pack(frontend, args):
 	'''
 	
 	try:
-		ident = args.get('ident', []) # FIXME: rename to 'idents' as in other interfaces
+		ident = args.get('ident', [None])[0] # FIXME: rename to 'idents' as in other interfaces
 		tag = args.get('tag', [None])[0]
 		offset = int(args.get('offset', ['0'])[0])
 		pattern = args.get('pattern', [None])[0]
 	except Exception, e:
 		raise QueryError('Invalid argument: ' + str(e))
 	
-	if not ident or not ident[0]:
+	if not ident:
 		raise QueryError("Invalid argument: 'ident' can not be empty")
 	
-	valid_ident = api.utils.sql_escape(ident[0].decode(api.config.api.get('encoding', 'UTF-8')))
-	if not api.utils.sql_valid(valid_ident):
-		raise QueryError('Invalid argument: ' + ident[0])
+	valid_ident = name_from_url(api.utils.sql_escape(ident.decode(api.config.api.get('encoding', 'UTF-8'))))
+	if not api.utils.sql_valid(valid_ident.get('title', u'')) or not api.utils.sql_valid(valid_ident.get('tag', u'')):
+		raise QueryError('Invalid argument: ' + ident)
 	
 	valid_pattern = (pattern and api.utils.sql_escape(pattern.decode(api.config.api.get('encoding', 'UTF-8'))) or None)
 	if pattern:
@@ -310,18 +326,16 @@ def pack(frontend, args):
 	
 	database = db.database.get_frontend_db_ro()
 	
-	db_idents = database.query(db.sqldb.Ident.id)\
-		.filter(db.sqldb.Ident.title == valid_ident)\
-		.all()
+	db_ident = get_ident(database, valid_ident.get('title', u''), valid_ident.get('tag', u''))
 		
-	if len(db_idents) < 1:
+	if not db_ident:
 		raise QueryError('Invalid argument: ' + ident)
 	
 	max_score = func.max(db.sqldb.Friend.score)
 	
 	# level 1
 	db_connections_lv1 = database.query(db.sqldb.Friend.ident_2_id)\
-		.filter(db.sqldb.Friend.ident_1_id == db_idents[0])\
+		.filter(db.sqldb.Friend.ident_1_id == db_ident.id)\
 		.order_by(db.sqldb.Friend.score.desc())
 	
 	if tag:
@@ -344,7 +358,7 @@ def pack(frontend, args):
 		# level 2
 		db_connections_lv2 = database.query(db.sqldb.Friend.ident_2_id, max_score)\
 			.filter(db.sqldb.Friend.ident_1_id.in_(lv1_ids))\
-			.filter(not_(db.sqldb.Friend.ident_2_id.in_(itertools.chain(lv1_ids, db_idents))))\
+			.filter(not_(db.sqldb.Friend.ident_2_id.in_(itertools.chain(lv1_ids, (db_ident.id, )))))\
 			.group_by(db.sqldb.Friend.ident_2_id)\
 			.order_by(max_score.desc())
 		

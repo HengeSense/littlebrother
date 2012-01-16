@@ -99,6 +99,10 @@ a:hover {
 	class: ui-widget ui-widget-text;
 }
 
+#query_tag {
+	display: none;
+}
+
 .query_default {
 	color: gray;
 }

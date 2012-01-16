@@ -11,8 +11,11 @@
 		return capitalized.join(' ');
 	}
 	
-	function apiString(str) {
-		return str.toUpperCase().replace('Ё', 'Е');
+	function apiString(bro) {
+		var title = bro.title || '';
+		var tag = bro.tag || '';
+		
+		return title.toUpperCase().replace('Ё', 'Е') + (tag && ':' + tag || '');
 	}
 	
 	function idents(args) {
@@ -22,9 +25,13 @@
 		
 		var url = api_host 
 			+ '/api/?frontend=json&interface=idents&pattern=' 
-			+ apiString(args.pattern || '') 
-			+ '&offset=' + (args.offset || 0) 
-			+ bro_version;
+			+ apiString(args.pattern || '');
+			
+		if (args.tag) {
+			url += '&tag=' + args.tag;
+		}
+		
+		url += '&offset=' + (args.offset || 0) + bro_version;
 		
 		$.ajax({ 
 			url : url,
@@ -47,7 +54,7 @@
 			}
 		});
 	}
-	
+	/*
 	function fuzzyIdents(args) {
 		if (args == undefined) {
 			args = {}
@@ -80,7 +87,7 @@
 			}
 		});
 	}
-
+	*/
 	function urls(args) {
 		if (args == undefined) {
 			args = {}
@@ -159,12 +166,13 @@
 				$.each(connections, function(index, val) {
 					var bro = {};
 					
+					bro['title'] = capitalize(val['title']);
 					bro['tag'] = val['tag'];
 					bro['median'] = val['median'];
 					bro['average'] = val['average'];
 					bro['score'] = val['score'];
 					
-					options[capitalize(val['title'])] = bro;
+					options[bro['title']] = bro;
 				});
 				
 				if (args.success) {
@@ -202,11 +210,12 @@
 				$.each(pack, function(index, val) {
 					var bro = {};
 					
+					bro['title'] = capitalize(val['title']);
 					bro['tag'] = val['tag'];
 					bro['score'] = val['score'];
 					bro['level'] = val['level'];
 					
-					options[capitalize(val['title'])] = bro;
+					options[bro['title']] = bro;
 				});
 				
 				if (args.success) {
@@ -255,7 +264,7 @@
 	$.bro = { 
 		stats : stats, 
 		idents : idents, 
-		fuzzyIdents : fuzzyIdents,
+//		fuzzyIdents : fuzzyIdents,
 		connections : connections, 
 		urls : urls, 
 		pack : pack, 

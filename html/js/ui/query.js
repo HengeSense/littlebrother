@@ -2,9 +2,10 @@
 var default_input_val = '';
 var current_ident = undefined;
 
-function directQuery(ident) {
+function directQuery(ident, ident_tag) {
 	$.bro.idents({
-		pattern : ident, 
+		pattern : { title : ident }, 
+		tag : ident_tag,
 		success : function (bros) {
 			switch (dictSize(bros)) {
 			case 0:
@@ -17,7 +18,7 @@ function directQuery(ident) {
 				for (key in bros) {
 			        if (bros.hasOwnProperty(key)) {
 			        	window.location = ('/profile.html?bros=' 
-			        		+ prepareNameForUrl(key));
+			        		+ nameForUrl({ title : key, tag : ident_tag }));
 			        	break;
 			        }
 				}
@@ -58,37 +59,47 @@ function initQueryBlock() {
 					.removeClass('query_normal');
 			}
 		})
-		.autocomplete({ source : function(req, callback) {
-			input.addClass('input_loading');
-			
-			$.bro.idents({ 
-				pattern : req['term'], 
-				success : function (options) {
-					var brolist = [];
-					
-					$.each(options, function (title, args) {
-						brolist.push(title);
-					});
-					
-					input.removeClass("input_loading");
-					
-					if (brolist.length < 1) {
-						showQueryError({
-							message : not_found
+		.autocomplete({ 
+			source : function(req, callback) {
+				input.addClass('input_loading');
+				
+				$.bro.idents({ 
+					pattern : { title : req['term'] }, 
+					success : function (options) {
+						var brolist = [];
+						
+						$.each(options, function (title, args) {
+							var bro = {};
+							bro['value'] = title;
+							bro['tag'] = args['tag'] || '';
+							
+							brolist.push(bro);
 						});
-						return;
+						
+						input.removeClass("input_loading");
+						
+						if (brolist.length < 1) {
+							showQueryError({
+								message : not_found
+							});
+							return;
+						}
+						
+						callback(brolist);
+					},
+					error : function (jqXHR) {
+						input.removeClass('input_loading');
+						showQueryError({
+							status : jqXHR.status
+						});
 					}
-					
-					callback(brolist);
-				},
-				error : function (jqXHR) {
-					input.removeClass('input_loading');
-					showQueryError({
-						status : jqXHR.status
-					});
-				}
-			});
-		}})
+				});
+			},
+			
+			select : function (event, ui) {
+				$('#query_tag').val(ui.item.tag);
+			}
+		})
 		.addClass(current_ident && 'query_normal' || 'query_default')
 		.addClass('ui-widget-content ui-widget');
 
@@ -102,7 +113,7 @@ function initQueryBlock() {
 			return false;
 		}
 		
-		directQuery(input.val());
+		directQuery(input.val(), $('#query_tag').val());
 		
 		return false;
 	});

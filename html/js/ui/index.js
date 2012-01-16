@@ -46,25 +46,19 @@ function initIndexUI() {
 			$('#total_idents').html(total_idents || '0');
 			$('#total_names').html(total_names || '0');
 			$('#total_orgs').html(total_orgs || '0');
-			$('#top_ident').append($('<a>')
-				.attr('href', profileLink(top_ident))
-				.html(top_ident || ''));
-			$('#bottom_ident').append($('<a>')
-				.attr('href', profileLink(bottom_ident))
-				.html(bottom_ident || ''));
 			$('#total_urls').html(total_urls || '0');
 			$('#total_records').html(total_records || '0');
 			$('#top_name').append($('<a>')
-				.attr('href', profileLink(top_name))
+				.attr('href', profileLink({ title : top_name, tag : 'names' }))
 				.html(top_name || ''));
 			$('#bottom_name').append($('<a>')
-				.attr('href', profileLink(bottom_name))
+				.attr('href', profileLink({ title: bottom_name, tag : 'names' }))
 				.html(bottom_name || ''));
 			$('#top_org').append($('<a>')
-				.attr('href', profileLink(top_org))
+				.attr('href', profileLink({ title : top_org, tag : 'orgs' }))
 				.html(top_org || ''));
 			$('#bottom_org').append($('<a>')
-				.attr('href', profileLink(bottom_org))
+				.attr('href', profileLink({ title : bottom_org, tag : 'orgs' }))
 				.html(bottom_org || ''));
 		}, 
 		error : function (jqXHR) {
@@ -88,7 +82,10 @@ function initIndexUI() {
 					event.preventDefault();
 					event.stopPropagation();
 					
-					$(this).hide();
-					$('#privacy').slideDown();
+					if (!$('#privacy').is(':visible')) {
+						$('#privacy').slideDown();
+					} else {
+						$('#privacy').slideUp();
+					}
 				}));
 }

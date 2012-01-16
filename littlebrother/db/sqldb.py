@@ -49,9 +49,6 @@ class Ident(Base):
 		self.freq_9 = 0
 		self.freq_10 = 0
 		self.score = 0
-	
-	def __repr__(self):
-		return u"<Ident(%r, '%r', %r, '%r')>" % (self.id, self.tag, self.title, str(self.metaphone))
 
 
 class Url(Base):
@@ -65,9 +62,6 @@ class Url(Base):
 		self.ref = ref
 		self.title = title
 	
-	def __repr__(self):
-		return "<Url(%r, '%r', '%r')>" % (self.id, self.ref, self.title)
-
 
 class Node(Base):
 	__tablename__ = 'network'
@@ -88,9 +82,6 @@ class Node(Base):
 		self.url_id = url.id
 		self.distance = distance
 	
-	def __repr__(self):
-		return "<Node(%r, %r, %r, %r, %r)>" % (self.id, self.ident_1_id, self.ident_2_d, self.url, self.distance)
-
 
 class Link(Base):
 	__tablename__ = 'links'
@@ -135,9 +126,6 @@ class Link(Base):
 		self.median = 0
 		self.score = 0
 	
-	def __repr__(self):
-		return "<Link(%r, %r, %r, %r, %r)>" % (self.id, self.ident_1_id, self.ident_2_id, self.samples_number, self.score)
-
 
 class Presence(Base):
 	__tablename__ = 'presence'
@@ -154,9 +142,6 @@ class Presence(Base):
 		self.ident_id = ident.id
 		self.url_id = url.id
 	
-	def __repr__(self):
-		return "<Presence(%r, %r, %r)>" % (self.id, self.ident_id, self.url_id)
-
 
 class Friend(Base):
 	__tablename__ = 'friends'
@@ -191,9 +176,6 @@ class Friend(Base):
 		self.median = 0
 		self.score = 0
 	
-	def __repr__(self):
-		return "<Friend(%r, %r, %r, %r)>" % (self.id, self.ident_1_id, self.ident_2_id, self.score)
-
 
 class Web(Base):
 	__tablename__ = 'web'
@@ -218,9 +200,6 @@ class Web(Base):
 		self.url_ref = url.ref
 		self.url_title = url.title
 	
-	def __repr__(self):
-		return "<Web(%r, %r)>" % (self.ident_id, self.url_id)
-
 
 class Stat(Base):
 	__tablename__ = 'stats'
@@ -232,9 +211,6 @@ class Stat(Base):
 		self.key = key
 		self.value = value
 	
-	def __repr__(self):
-		return "<Stat(%r, %r)>" % (self.key, self.value)
-
 
 Session = sessionmaker()
 
@@ -246,7 +222,7 @@ class SqlDB(object):
 		
 		super(SqlDB, self).__init__()
 		
-		self.engine = create_engine(url, convert_unicode = True)
+		self.engine = create_engine(url, convert_unicode = True, echo = True)
 		
 		Session.configure(bind = self.engine, autocommit = autocommit)
 		self.session = Session()

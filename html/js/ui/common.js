@@ -25,8 +25,22 @@ dictSize = function(obj) {
     return size;
 }
 
-function prepareNameForUrl(name) {
-	return name.replace(/\s+/g, '+')
+function nameForUrl(args) {
+	var title = args.title || '';
+	var tag = args.tag || '';
+	
+	return title.replace(/\s+/g, '+') + ':' + tag;
+}
+
+function nameFromUrl(str) {
+	var matches = str.match(/(.*):(.*)/); // greedy
+	if (matches) {
+		var name = {};
+		name.title = matches[1].split('+').join(' ');
+		name.tag = matches[2];
+		
+		return name;
+	}
 }
 
 function urlParam(name) {
@@ -39,16 +53,29 @@ function urlParam(name) {
 	return decodeURI(results[1].replace(/\+/g, ' '));
 }
 
-function profileLink(title) {
-	return '/profile.html?bros=' + title.replace(/\s/g, '+');
+function pageBros(tag) {
+	var bros = [];
+	var page_bros = urlParam(tag).split(',');
+	
+	for (var i in page_bros) {
+		bros.push(nameFromUrl(page_bros[i]));
+	}
+	
+	return bros;
 }
 
-function broplusLink(title, bros) {
-	return (bros && ('/profile.html?bros=' + (bros.join(',') + ',' + title).replace(/\s/g, '+')) || null);
+function profileLink(args) {
+	return '/profile.html?bros=' + nameForUrl(args);
 }
 
-function packLink(title) {
-	return '/pack.html?bro=' + title.replace(/\s/g, '+');
+function broplusLink(args) {
+	var bros = args.bros || '';
+	
+	return '/profile.html?bros=' + (bros && bros + ',' || '') + nameForUrl(args);
+}
+
+function packLink(args) {
+	return '/pack.html?bro=' + nameForUrl(args);
 }
 
 function initConnectionsPatternBlock() {
