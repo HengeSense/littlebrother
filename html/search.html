@@ -1,62 +1,65 @@
-<!DOCTYPE html PUBLIC 
-	"-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!DOCTYPE html PUBLIC
+	"-//W3C//DTD XHTML 1.0 Transitional//EN"
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
-		<meta 
-			http-equiv="Content-Type" 
+		<meta
+			http-equiv="Content-Type"
 			content="text/html; charset=UTF-8" />
-			
+
 		<title>
 			Поиск</title>
-			
-		<link 
-			rel="stylesheet" 
-			type="text/css" 
+
+		<link
+			rel="stylesheet"
+			type="text/css"
 			href="/css/jquery-ui-1.8.13.custom.css" />
-		<link 
-			rel="stylesheet" 
-			type="text/css" 
+		<link
+			rel="stylesheet"
+			type="text/css"
 			href="/css/ui/common.css" />
-		<link 
-			rel="stylesheet" 
-			type="text/css" 
+		<link
+			rel="stylesheet"
+			type="text/css"
 			href="/css/ui/search.css" />
-		<script 
-			type="text/javascript" 
+		<script
+			type="text/javascript"
 			src="/js/jquery-1.6.1.min.js"></script>
-		<script 
-			type="text/javascript" 
+		<script
+			type="text/javascript"
 			src="/js/jquery-ui-1.8.13.custom.min.js"></script>
-		<script 
-			type="text/javascript" 
+		<script
+			type="text/javascript"
 			src="/js/jquery.littlebrother.proto.js"></script>
-		<script 
-			type="text/javascript" 
+		<script
+			type="text/javascript"
+			src="/js/ui/settings.js"></script>
+		<script
+			type="text/javascript"
 			src="/js/ui/common.js"></script>
-		<script 
-			type="text/javascript" 
+		<script
+			type="text/javascript"
 			src="/js/ui/messages.js"></script>
-		<script 
-			type="text/javascript" 
+		<script
+			type="text/javascript"
 			src="/js/ui/query.js"></script>
-		<script 
-			type="text/javascript" 
+		<script
+			type="text/javascript"
 			src="/js/ui/search.js"></script>
-		<script 
+		<script
 			type="text/javascript">
 			$(document).ready(function() {
 				initSearchUI($(document));
 			});
 		</script>
 		<noscript>
-			<meta 
-				http-equiv="refresh" 
+			<meta
+				http-equiv="refresh"
 				content="0;url=/noscript.html" />
 		</noscript>
 	</head>
-	
+
 	<body>
 		<div id="header_block">
 			<div id="header_row">
@@ -66,39 +69,39 @@
 							На главную</button>
 					</a>
 				</div>
-				
+
 				<div id="query_block">
-					<form 
-						id="query_form" 
-						action="/profile.html" 
+					<form
+						id="query_form"
+						action="/profile.html"
 						method="get">
-						
-						<input 
-							id="query" 
-							name="bros" 
-							value="Напечатай в меня" 
-							type="text" 
+
+						<input
+							id="query"
+							name="bros"
+							value="Напечатай в меня"
+							type="text"
 							autocomplete="off" />
-						<button 
+						<button
 							id="submit">Нажми меня</button>
 					</form>
 				</div>
 			</div>
 		</div>
-		
+
 		<div id="errors"></div>
-		
+
 		<div id="search_block">
 			<div id="nav">
-				<button 
+				<button
 					id="entries_prev"
 					title="Предыдущая страница">&nbsp;</button>
-				
+
 				<button
-					id="entries_next" 
+					id="entries_next"
 					title="Следующая страница">&nbsp;</button>
 			</div>
-		
+
 			<div id="entries_block">
 				<div id="entries"></div>
 			</div>

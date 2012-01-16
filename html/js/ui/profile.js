@@ -22,7 +22,7 @@ var current_tag = undefined;
 			html.append($('<a>')
 				.addClass('broplus_link')
 				.attr('href', broplusLink($.extend(bro, { bros : bros })))
-				.attr('title', broplus_title)
+				.attr('title', messages.broplus_title)
 				.button({
 					icons : {
 						primary: 'ui-icon-circle-plus'
@@ -34,7 +34,7 @@ var current_tag = undefined;
 		html.append($('<a>')
 			.addClass('pack_link')
 			.attr('href', packLink(bro))
-			.attr('title', packlink_title)
+			.attr('title', messages.packlink_title)
 			.button({
 				icons : {
 					primary : 'ui-icon-heart'
@@ -62,7 +62,7 @@ function showError(node, args) {
 
 	node
 		.html($('<p>')
-			.html(message || format(page_error, args)))
+			.html(message || format(messages.query_error, args)))
 		.removeClass()
 		.addClass((message && 'centered' || ''))
 		.show()

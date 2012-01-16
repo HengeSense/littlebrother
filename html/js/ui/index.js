@@ -3,7 +3,7 @@ function showQueryError(args) {
 	var message = args['message'];
 
 	showError({
-		message : message || format(query_error, args),
+		message : message || format(messages.query_error, args),
 		style : (message && 'centered' || '')
 	});
 }
@@ -63,7 +63,7 @@ function initIndexUI() {
 		},
 		error : function (jqXHR) {
 			showError({
-				message : format(general_failure, {
+				message : format(messages.general_failure, {
 					status : jqXHR.status
 				})
 			});

@@ -48,7 +48,7 @@ var connections_pattern = '';
 			.append($('<a>')
 				.addClass('profile_link')
 				.attr('href', profileLink(args))
-				.attr('title', profilelink_title)
+				.attr('title', messages.profilelink_title)
 				.button({
 					icons : {
 						primary: "ui-icon-person"
@@ -75,7 +75,7 @@ function showError(args) {
 
 	$('#errors')
 		.html($('<p>')
-			.html(message || format(page_error, args)))
+			.html(message || format(messages.query_error, args)))
 		.removeClass()
 		.addClass((message && 'centered' || ''))
 		.show()

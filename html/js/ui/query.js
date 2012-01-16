@@ -4,7 +4,7 @@ var current_ident = undefined;
 
 function directQuery(ident, ident_tag) {
 	$.bro.idents({
-		pattern : { title : ident },
+		pattern : ident,
 		tag : ident_tag,
 		success : function (bros) {
 			switch (dictSize(bros)) {
@@ -25,7 +25,7 @@ function directQuery(ident, ident_tag) {
 				break;
 
 			default:
-				window.location = ('/search.html?search=' + ident);
+				window.location = ('/search.html?q=' + ident);
 			}
 		},
 		error : function (jqXHR) {
@@ -64,7 +64,7 @@ function initQueryBlock() {
 				input.addClass('input_loading');
 
 				$.bro.idents({
-					pattern : { title : req['term'] },
+					pattern : req['term'],
 					success : function (options) {
 						var brolist = [];
 
