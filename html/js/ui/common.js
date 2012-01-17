@@ -43,8 +43,9 @@ function nameFromUrl(str) {
 	}
 }
 
-function urlParam(name) {
-	var results = new RegExp('[\\?&#]' + name + '=([^&#]*)').exec(window.location.href);
+function urlParam(name, href) {
+	var url = href || window.location.href;
+	var results = new RegExp('[\\?&#]' + name + '=([^&#]*)').exec(url);
 
 	if (!results) {
 		return '';

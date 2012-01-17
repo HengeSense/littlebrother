@@ -56,15 +56,29 @@ function entriesLoadSuccess(entries) {
 
 	fillEntries(entries);
 
-	$('#entries_prev').button(urlParam('epage') > 1 && 'enable' || 'disable');
+	$('#entries_prev').button(parseInt(urlParam('epage')) > 1 && 'enable' || 'disable');
 	$('#entries_next').button(more_entries_available && 'enable' || 'disable');
 }
 
 function entriesLoadError(jqXHR) {
-	$('#entries_prev').button(urlParam('epage') > 1 && 'enable' || 'disable');
+	$('#entries_prev').button(parseInt(urlParam('epage')) > 1 && 'enable' || 'disable');
 	$('#entries_next').button('enable');
 
 	showSearchError(jqXHR);
+}
+
+function updatePage(oldurl, newurl) {
+	var old_page = oldurl && (urlParam('epage', oldurl) || 1) || -1;
+	var new_page = newurl && (urlParam('epage', newurl) || 1) || -1;
+
+	if (old_page != new_page) {
+		reloadEntries(entriesLoadSuccess);
+	}
+
+	var current_href = window.location.href;
+	$(window).unbind('hashchange').bind('hashchange', function(args) {
+		updatePage(current_href, window.location.href);
+	});
 }
 
 function loadEntries(success) {
@@ -155,9 +169,5 @@ function initSearchUI() {
 		navigateToPage(parseInt(urlParam('epage') || 1) + 1);
 	});
 
-	$(window).bind('hashchange', function(args) {
-		reloadEntries();
-	});
-
-	loadEntries();
+	updatePage(null, window.location.href);
 }
