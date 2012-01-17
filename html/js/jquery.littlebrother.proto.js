@@ -177,7 +177,7 @@
 					bro['average'] = val['average'];
 					bro['score'] = val['score'];
 
-					options[bro['title']] = bro;
+					options[bro['title'] + ':' + bro['tag']] = bro;
 				});
 
 				if (args.success) {

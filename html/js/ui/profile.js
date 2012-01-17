@@ -217,10 +217,10 @@ function fillConnections(bros) {
 			.attr('class', args.tag)
 			.append($('<a>')
 				.attr('href', profileLink(args))
-				.html(title))
+				.html(args.title))
 			.append($('<span>')
 				.attr('class', 'goggles')
-				.html('&nbsp;' + args['score']))
+				.html('&nbsp;' + args.score))
 			.makebro(args, urlParam('bros'))
 			.appendTo(replacement_ul);
 	});
