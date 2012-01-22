@@ -21,7 +21,7 @@
 	display: none;
 }
 
-#privacy p {
+#privacy p, #privacy li {
 	text-align: left;
 }
 

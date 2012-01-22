@@ -73,19 +73,15 @@ function initIndexUI() {
 	$('#privacy')
 		.hide();
 
-	$('#info_block')
-		.append(
-			$('<a>')
-				.attr('href', '/')
-				.text('Privacy')
-				.click(function (event) {
-					event.preventDefault();
-					event.stopPropagation();
+	$('#privacy_anchor')
+		.click(function (event) {
+			event.preventDefault();
+			event.stopPropagation();
 
-					if (!$('#privacy').is(':visible')) {
-						$('#privacy').slideDown();
-					} else {
-						$('#privacy').slideUp();
-					}
-				}));
+			if (!$('#privacy').is(':visible')) {
+				$('#privacy').slideDown();
+			} else {
+				$('#privacy').slideUp();
+			}
+		});
 }
