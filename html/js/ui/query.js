@@ -79,17 +79,17 @@ function initQueryBlock() {
 						});
 
 						input.removeClass("input_loading");
+						callback(brolist);
 
 						if (brolist.length < 1) {
 							showQueryError({
 								message : messages.not_found
 							});
-							return;
 						}
-
-						callback(brolist);
 					},
 					error : function (jqXHR) {
+						callback([]);
+
 						input.removeClass('input_loading');
 						showQueryError({
 							status : jqXHR.status
@@ -98,9 +98,10 @@ function initQueryBlock() {
 				});
 			},
 
+			minLength: 2,
 			select : function (event, ui) {
 				$('#query_tag').val(ui.item.tag);
-			}
+			},
 		})
 		.addClass(current_ident && 'query_normal' || 'query_default')
 		.addClass('ui-widget-content ui-widget');
