@@ -45,13 +45,24 @@ function nameFromUrl(str) {
 
 function urlParam(name, href) {
 	var url = href || window.location.href;
-	var results = new RegExp('[\\?&#]' + name + '=([^&#]*)').exec(url);
+	var args = $.extend($.deparam.querystring(url), $.deparam.fragment(url))
 
-	if (!results) {
-		return '';
-	}
+	return args[name];
+}
 
-	return decodeURI(results[1].replace(/\+/g, ' '));
+function fragmentParam(name, href) {
+	var url = href || window.location.href;
+	return $.deparam.fragment(url)[name];
+}
+
+function replaceUrlParam(name, value, href) {
+	var url = href || window.location.href;
+	return $.param.querystring(url, name + '=' + value);
+}
+
+function replaceFragmentParam(name, value, href) {
+	var url = href || window.location.href;
+	return $.param.fragment(url, name + '=' + value);
 }
 
 function pageBros(tag) {

@@ -72,7 +72,7 @@ function updatePage(oldurl, newurl) {
 	var new_page = newurl && (urlParam('epage', newurl) || 1) || -1;
 
 	if (old_page != new_page) {
-		reloadEntries(entriesLoadSuccess);
+		reloadEntries();
 	}
 
 	var current_href = window.location.href;
@@ -87,7 +87,7 @@ function loadEntries(success) {
 
 	$.bro.idents({
 		pattern : urlParam('q'),
-		offset : parseInt(urlParam('epage')) * settings.search.entries,
+		offset : (parseInt(urlParam('epage')) - 1) * settings.search.entries,
 		limit : settings.search.entries,
 		success : (success || entriesLoadSuccess),
 		error : entriesLoadError
@@ -130,20 +130,7 @@ function navigateToPage(page) {
 		return;
 	}
 
-	var url = window.location.protocol +'//'
-	+ window.location.host
-	+ window.location.pathname
-	+ window.location.search;
-
-	if (page < 2) {
-		url += '#';
-	} else {
-		url += '#epage=' + page;
-	}
-
-	if (window.location.href != url) {
-		window.location.href = url;
-	}
+	window.location.href = replaceFragmentParam('epage', page);
 }
 
 function initSearchUI() {
