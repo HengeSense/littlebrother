@@ -10,15 +10,17 @@ function directQuery(ident, ident_tag) {
 			switch (dictSize(bros)) {
 			case 0:
 				showQueryError({
-					message : not_found
+					message : messages.not_found
 				});
 				break;
 
 			case 1:
 				for (key in bros) {
 			        if (bros.hasOwnProperty(key)) {
+			        	var bro = bros[key];
+
 			        	window.location = ('/profile.html?bros='
-			        		+ nameForUrl({ title : key, tag : ident_tag }));
+			        		+ nameForUrl({ title : bro.title, tag : bro.tag }));
 			        	break;
 			        }
 				}
@@ -80,7 +82,7 @@ function initQueryBlock() {
 
 						if (brolist.length < 1) {
 							showQueryError({
-								message : not_found
+								message : messages.not_found
 							});
 							return;
 						}
