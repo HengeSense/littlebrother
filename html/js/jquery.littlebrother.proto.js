@@ -152,8 +152,10 @@
 			url += '&pattern=' + apiString(args.pattern);
 		}
 
-		if (args.tag) {
-			url += '&tag=' + args.tag;
+		if (args.tags) {
+			for (var i = 0; i < args.tags.length; ++i) {
+				url += '&tags=' + args.tags[i];
+			}
 		}
 
 		if (args.limit) {
@@ -196,8 +198,10 @@
 			+ '/api/?frontend=json&interface=pack&ident='
 			+ apiString(args.bro || '');
 
-		if (args.tag) {
-			url += '&tag=' + args.tag;
+		if (args.tags) {
+			for (var i = 0; i < args.tags.length; ++i) {
+				url += '&tags=' + args.tags[i];
+			}
 		}
 
 		if (args.pattern) {

@@ -151,7 +151,7 @@ function packLoadError(jqXHR) {
 function loadPack(success) {
 	$.bro.pack({
 		bro : pageBros('bro')[0],
-		tag : current_tag,
+		tags : (current_tag && [ current_tag ] || settings.query.nofilter_tags),
 		pattern : connections_pattern,
 		success : (success || packLoadSuccess),
 		error : packLoadError
@@ -244,9 +244,9 @@ function fillPack(bros) {
 function initPackUI() {
 	initQueryBlock();
 
-	current_tag = urlParam('tag');
+	current_tag = urlParam('tag') || '';
 	current_level = parseInt(urlParam('level')) || 0;
-	connections_pattern = urlParam('connections');
+	connections_pattern = urlParam('connections') || '';
 
 	initConnectionsPatternBlock();
 

@@ -49,16 +49,16 @@ function initIndexUI() {
 			$('#total_urls').html(total_urls || '0');
 			$('#total_records').html(total_records || '0');
 			$('#top_name').append($('<a>')
-				.attr('href', profileLink({ title : top_name, tag : 'names' }))
+				.attr('href', profileLink({ title : top_name, tag : settings.query.people_tag }))
 				.html(top_name || ''));
 			$('#bottom_name').append($('<a>')
-				.attr('href', profileLink({ title: bottom_name, tag : 'names' }))
+				.attr('href', profileLink({ title: bottom_name, tag : settings.query.people_tag }))
 				.html(bottom_name || ''));
 			$('#top_org').append($('<a>')
-				.attr('href', profileLink({ title : top_org, tag : 'orgs' }))
+				.attr('href', profileLink({ title : top_org, tag : settings.query.firms_tag }))
 				.html(top_org || ''));
 			$('#bottom_org').append($('<a>')
-				.attr('href', profileLink({ title : bottom_org, tag : 'orgs' }))
+				.attr('href', profileLink({ title : bottom_org, tag : settings.query.firms_tag }))
 				.html(bottom_org || ''));
 		},
 		error : function (jqXHR) {

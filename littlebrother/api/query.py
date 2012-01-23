@@ -136,14 +136,14 @@ def fuzzy_idents(frontend, args):
 def connections(frontend, args):
 	'''
 	List identities connections (according to pattern and tag if any)
-	Arguments: idents -> string list, offset - > int, tag -> string, pattern -> string
+	Arguments: idents -> string list, offset - > int, tags -> string list, pattern -> string
 	'''
 
 	try:
 		idents = args.get('idents', [])
 		offset = int(args.get('offset', ['0'])[0])
 		limit = int(args.get('limit', ['0'])[0])
-		tag = args.get('tag', [None])[0]
+		tags = args.get('tags', [])
 		pattern = args.get('pattern', [None])[0]
 	except Exception, e:
 		raise QueryError('Invalid argument: ' + str(e))
@@ -170,6 +170,11 @@ def connections(frontend, args):
 		if not api.utils.sql_valid(ident.get('title', u'')) or not api.utils.sql_valid(ident.get('tag', u'')):
 			raise QueryError('Invalid argument: ' + ident)
 
+	valid_tags = [ api.utils.sql_escape(tag.decode(io_encoding)) for tag in tags ]
+	for tag in valid_tags:
+		if not api.utils.sql_valid(tag):
+			raise QueryError('Invalid argument: ' + tag)
+
 	database = db.database.get_frontend_db_ro()
 
 	db_idents = [ get_ident(database, ident.get('title', u''), ident.get('tag', u'')) for ident in valid_idents ]
@@ -186,9 +191,9 @@ def connections(frontend, args):
 		.having(func.count(db.sqldb.Friend.ident_2_id) == len(db_idents))\
 		.order_by(max_score.desc())
 
-	if tag:
+	if valid_tags:
 		db_connections = db_connections\
-			.filter(db.sqldb.Friend.ident_2_tag == tag)
+			.filter(db.sqldb.Friend.ident_2_tag.in_(valid_tags))
 
 	if pattern:
 		max_tokens = api.config.api.get('max_connections_filter_tokens', 2)
@@ -306,12 +311,12 @@ def urls(frontend, args):
 def pack(frontend, args):
 	'''
 	List identities pack
-	Arguments: ident -> string, tag - > string, level_1_offset -> int, level_2_offset -> int, pattern -> string
+	Arguments: ident -> string, tags - > string list, level_1_offset -> int, level_2_offset -> int, pattern -> string
 	'''
 
 	try:
 		ident = args.get('ident', [None])[0]  # FIXME: rename to 'idents' as in other interfaces
-		tag = args.get('tag', [None])[0]
+		tags = args.get('tags', [])
 		offset = int(args.get('offset', ['0'])[0])
 		pattern = args.get('pattern', [None])[0]
 	except Exception, e:
@@ -323,6 +328,11 @@ def pack(frontend, args):
 	valid_ident = name_from_url(api.utils.sql_escape(ident.decode(io_encoding)))
 	if not api.utils.sql_valid(valid_ident.get('title', u'')) or not api.utils.sql_valid(valid_ident.get('tag', u'')):
 		raise QueryError('Invalid argument: ' + ident)
+
+	valid_tags = [ api.utils.sql_escape(tag.decode(io_encoding)) for tag in tags ]
+	for tag in valid_tags:
+		if not api.utils.sql_valid(tag):
+			raise QueryError('Invalid argument: ' + tag)
 
 	valid_pattern = (pattern and api.utils.sql_escape(pattern.decode(io_encoding)) or None)
 	if pattern:
@@ -343,8 +353,9 @@ def pack(frontend, args):
 		.filter(db.sqldb.Friend.ident_1_id == db_ident.id)\
 		.order_by(db.sqldb.Friend.score.desc())
 
-	if tag:
-		db_connections_lv1 = db_connections_lv1.filter(db.sqldb.Friend.ident_2_tag == tag)
+	if valid_tags:
+		db_connections_lv1 = db_connections_lv1\
+			.filter(db.sqldb.Friend.ident_2_tag.in_(valid_tags))
 
 	if pattern:
 		max_tokens = api.config.api.get('max_connections_filter_tokens', 2)
@@ -367,9 +378,9 @@ def pack(frontend, args):
 			.group_by(db.sqldb.Friend.ident_2_id)\
 			.order_by(max_score.desc())
 
-		if tag:
+		if valid_tags:
 			db_connections_lv2 = db_connections_lv2\
-				.filter(db.sqldb.Friend.ident_2_tag == tag)
+				.filter(db.sqldb.Friend.ident_2_tag.in_(valid_tags))
 
 		db_connections_lv2 = db_connections_lv2\
 			.limit(api.config.api.get('max_pack_layer_2_size', 30))

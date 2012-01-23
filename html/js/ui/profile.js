@@ -164,7 +164,7 @@ function loadConnections(success) {
 		bros : pageBros('bros'),
 		pattern : connections_pattern,
 		limit : connections_limit,
-		tag : current_tag,
+		tags : (current_tag && [ current_tag ] || settings.query.nofilter_tags),
 		offset : connections_current_page * connections_limit,
 		success : (success || connectionsLoadSuccess),
 		error : connectionsLoadError
@@ -435,9 +435,9 @@ function fillFuzzyNames(options) {
 function initProfileUI() {
 	initQueryBlock();
 
-	titles_pattern = urlParam('title');
-	connections_pattern = urlParam('connections');
-	current_tag = urlParam('tag');
+	titles_pattern = urlParam('title') || '';
+	connections_pattern = urlParam('connections') || '';
+	current_tag = urlParam('tag') || '';
 	connections_current_page = Math.max(parseInt(urlParam('cpage') || '1') - 1, 0);
 	urls_current_page = Math.max(parseInt(urlParam('upage') || '1') - 1, 0);
 
