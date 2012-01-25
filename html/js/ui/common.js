@@ -5,6 +5,10 @@
 			duration = 600;
 		}
 
+		if (!to_color) {
+			to_color = $('body').css('background-color');
+		}
+
 		$(this)
 			.css('background-color', from_color)
 			.animate({

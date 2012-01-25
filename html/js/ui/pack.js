@@ -79,7 +79,7 @@ function showError(args) {
 		.removeClass()
 		.addClass((message && 'centered' || ''))
 		.show()
-		.blink('#ffc', '#fff');
+		.blink('#ffc');
 }
 
 function showQueryError(args) {

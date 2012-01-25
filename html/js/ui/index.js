@@ -23,7 +23,7 @@ function showError(args) {
 		.removeClass()
 		.addClass(style)
 		.show()
-		.blink('#ffc', '#fff');
+		.blink('#ffc');
 }
 
 function initIndexUI() {
