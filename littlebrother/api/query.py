@@ -321,17 +321,20 @@ def pack(frontend, args):
 	'''
 
 	try:
-		ident = args.get('ident', [None])  # FIXME: rename to 'idents' as in other interfaces
+		idents = args.get('idents', [])
 		tags = args.get('tags', [])
 		offset = int(args.get('offset', ['0'])[0])
 		pattern = args.get('pattern', [None])[0]
 	except Exception, e:
 		raise QueryError('Invalid argument: ' + str(e))
 
-	if not ident or not ident[0]:
-		raise QueryError("Invalid argument: 'ident' can not be empty")
+	if not idents or not idents[0]:
+		raise QueryError("Invalid argument: 'idents' can not be empty")
 
-	valid_ident = name_from_url(api.utils.sql_escape(ident.decode(io_encoding)))
+	if len(idents) != 1:
+		raise QueryError("Invalid argument: len of 'idents' can not be greater than 1 person")
+
+	valid_ident = name_from_url(api.utils.sql_escape(idents[0].decode(io_encoding)))
 	if not valid_ident \
 	or not api.utils.sql_valid(valid_ident.get('title', u'')) \
 	or not api.utils.sql_valid(valid_ident.get('tag', u'')):
@@ -581,12 +584,12 @@ if __name__ == '__main__':
 				}, 'idents')
 
 		def testPack(self):
-			self.checkInvalidArgument(pack, {}, 'ident')
+			self.checkInvalidArgument(pack, {}, 'idents')
 			self.checkInvalidArgument(pack, {
-				'ident' : []
-				}, 'ident')
+				'idents' : []
+				}, 'idents')
 			self.checkInvalidArgument(fuzzy_idents, {
-				'ident' : ['x'],
+				'idents' : ['x'],
 				'offset' : ['x'],
 				}, 'int()')
 

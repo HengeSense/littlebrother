@@ -195,7 +195,7 @@
 		}
 
 		var url = api_host
-			+ '/api/?frontend=json&interface=pack&ident='
+			+ '/api/?frontend=json&interface=pack&idents='
 			+ apiString(args.bro || '');
 
 		if (args.tags) {
