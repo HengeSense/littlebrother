@@ -2,7 +2,7 @@
 
 import re
 
-sql_valid_chars = ur"""0-9a-zа-яё /\.,'"-:"""
+sql_valid_chars = ur"""0-9a-zа-яё /.,'":\-()<>!&@"""
 
 sql_validator = re.compile(
 	ur"""^[""" + sql_valid_chars + """]+$"""
@@ -32,12 +32,12 @@ if __name__ == '__main__':
 			assert(sql_valid(u'10 Little nigger boys went out to dine'))
 			assert(sql_valid(u'10 Негритят решили пообедать'))
 
-			valid_chars = u"""-.,ёЁйЙ"'/"""
+			valid_chars = u"""-.,ёЁйЙAZaz"'/()<>&!@"""
 			for char in valid_chars:
 				if not sql_valid(char):
 					self.fail('"' + char.encode('UTF-8') + '" appears to be invalid SQL character')
 
-			invalid_chars = u"""~`!@#$%^&*()_=+[{]}\|;:<>?"""
+			invalid_chars = u"""~`#$%^*_=+[{]}\|;?"""
 			for char in invalid_chars:
 				if sql_valid(char):
 					self.fail('"' + char.encode('UTF-8') + '" appears to be valid SQL character')

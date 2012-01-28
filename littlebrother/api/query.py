@@ -166,7 +166,10 @@ def connections(frontend, args):
 		raise QueryError("Invalid argument: 'idents' list must include not more than " + str(max_intersection_idents) + " entries")
 
 	valid_idents = [ name_from_url(api.utils.sql_escape(ident.decode(io_encoding))) for ident in idents ]
-	for ident in valid_idents:
+	for ident, original_ident in zip(valid_idents, idents):
+		if not ident:
+			raise QueryError("Invalid argument: " + str(original_ident))
+
 		if not api.utils.sql_valid(ident.get('title', u'')) or not api.utils.sql_valid(ident.get('tag', u'')):
 			raise QueryError('Invalid argument: ' + ident)
 
@@ -262,7 +265,10 @@ def urls(frontend, args):
 		raise QueryError("Invalid argument: 'idents' list must include not more than " + str(max_intersection_idents) + " entries")
 
 	valid_idents = [ name_from_url(api.utils.sql_escape(ident.decode(io_encoding))) for ident in idents ]
-	for ident in valid_idents:
+	for ident, original_ident in zip(valid_idents, idents):
+		if not ident:
+			raise QueryError("Invalid argument: " + str(original_ident))
+
 		if not api.utils.sql_valid(ident.get('title', u'')) or not api.utils.sql_valid(ident.get('tag', u'')):
 			raise QueryError('Invalid argument: ' + ident)
 
@@ -315,18 +321,20 @@ def pack(frontend, args):
 	'''
 
 	try:
-		ident = args.get('ident', [None])[0]  # FIXME: rename to 'idents' as in other interfaces
+		ident = args.get('ident', [None])  # FIXME: rename to 'idents' as in other interfaces
 		tags = args.get('tags', [])
 		offset = int(args.get('offset', ['0'])[0])
 		pattern = args.get('pattern', [None])[0]
 	except Exception, e:
 		raise QueryError('Invalid argument: ' + str(e))
 
-	if not ident:
+	if not ident or not ident[0]:
 		raise QueryError("Invalid argument: 'ident' can not be empty")
 
 	valid_ident = name_from_url(api.utils.sql_escape(ident.decode(io_encoding)))
-	if not api.utils.sql_valid(valid_ident.get('title', u'')) or not api.utils.sql_valid(valid_ident.get('tag', u'')):
+	if not valid_ident \
+	or not api.utils.sql_valid(valid_ident.get('title', u'')) \
+	or not api.utils.sql_valid(valid_ident.get('tag', u'')):
 		raise QueryError('Invalid argument: ' + ident)
 
 	valid_tags = [ api.utils.sql_escape(tag.decode(io_encoding)) for tag in tags ]
@@ -423,7 +431,8 @@ if __name__ == '__main__':
 		main_pattern = 'ПУТИН'
 		main_ident = main_pattern + ' ВЛАДИМИР'
 		secondary_ident = 'МЕДВЕДЕВ ДМИТРИЙ'
-		idents = ( main_ident, secondary_ident, )
+		idents_tag = 'names'
+		idents = ( main_ident + ':names', secondary_ident + ':names', )
 		ref = 'http://kremlin.ru'
 
 		def setUp(self):
@@ -433,14 +442,14 @@ if __name__ == '__main__':
 				.filter(db.sqldb.Ident.title == self.main_ident)\
 				.first()
 			if ident1 == None:
-				ident1 = db.sqldb.Ident(self.main_ident, 'names')
+				ident1 = db.sqldb.Ident(self.main_ident, self.idents_tag)
 				database.add(ident1)
 
 			ident2 = database.query(db.sqldb.Ident)\
 				.filter(db.sqldb.Ident.title == self.secondary_ident)\
 				.first()
 			if ident2 == None:
-				ident2 = db.sqldb.Ident(self.secondary_ident, 'names')
+				ident2 = db.sqldb.Ident(self.secondary_ident, self.idents_tag)
 				database.add(ident2)
 
 			node = database.query(db.sqldb.Node)\
@@ -483,7 +492,7 @@ if __name__ == '__main__':
 #			print fulltext
 
 			fulltext = ''
-			for chunk in connections(frontend, { 'idents' : [self.main_ident], 'offset' : ['0'] }):
+			for chunk in connections(frontend, { 'idents' : [self.main_ident + ':' + self.idents_tag], 'offset' : ['0'] }):
 				fulltext += chunk
 			assert(fulltext)
 #			print fulltext
@@ -493,7 +502,7 @@ if __name__ == '__main__':
 
 	class ErrorsTest(unittest.TestCase):
 
-		def checkInternalError(self, interface, args, argument_name):
+		def checkInvalidArgument(self, interface, args, argument_name):
 
 			def stub_frontend(*args):
 				return ''
@@ -505,78 +514,78 @@ if __name__ == '__main__':
 				assert('Invalid argument' in str(e) and argument_name in str(e))
 
 		def testIdents(self):
-			self.checkInternalError(idents, {}, 'pattern')
-			self.checkInternalError(idents, {
+			self.checkInvalidArgument(idents, {}, 'pattern')
+			self.checkInvalidArgument(idents, {
 				'pattern' : ['']
 				}, 'pattern')
-			self.checkInternalError(idents, {
+			self.checkInvalidArgument(idents, {
 				'pattern' : ['x'],
 				'offset' : ['x'],
 				}, 'int()')
-			self.checkInternalError(idents, {
+			self.checkInvalidArgument(idents, {
 				'pattern' : ['x'],
 				'offset' : ['0'],
 				'limit' : ['x'],
 				}, 'int()')
 
 		def testFuzzyIdents(self):
-			self.checkInternalError(fuzzy_idents, {}, 'pattern')
-			self.checkInternalError(fuzzy_idents, {
+			self.checkInvalidArgument(fuzzy_idents, {}, 'pattern')
+			self.checkInvalidArgument(fuzzy_idents, {
 				'pattern' : ['x'],
 				'offset' : ['x'],
 				}, 'int()')
-			self.checkInternalError(fuzzy_idents, {
+			self.checkInvalidArgument(fuzzy_idents, {
 				'pattern' : ['x'],
 				'offset' : ['0'],
 				'limit' : ['x'],
 				}, 'int()')
 
 		def testConnections(self):
-			self.checkInternalError(connections, {}, 'idents')
-			self.checkInternalError(connections, {
+			self.checkInvalidArgument(connections, {}, 'idents')
+			self.checkInvalidArgument(connections, {
 				'idents' : []
 				}, 'idents')
-			self.checkInternalError(connections, {
+			self.checkInvalidArgument(connections, {
 				'idents' : ['x'],
 				'offset' : ['x'],
 				}, 'int()')
-			self.checkInternalError(connections, {
+			self.checkInvalidArgument(connections, {
 				'idents' : ['x'],
 				'offset' : ['0'],
 				'limit' : ['x'],
 				}, 'int()')
-			self.checkInternalError(connections, {
+			self.checkInvalidArgument(connections, {
 				'idents' : ['x'] * (api.config.api.get('max_intersection_idents', 3) + 1),
 				'offset' : ['0'],
 				'limit' : ['0'],
 				}, 'idents')
 
 		def testUrls(self):
-			self.checkInternalError(urls, {}, 'idents')
-			self.checkInternalError(urls, {
+			self.checkInvalidArgument(urls, {}, 'idents')
+			self.checkInvalidArgument(urls, {
 				'idents' : []
 				}, 'idents')
-			self.checkInternalError(urls, {
+			self.checkInvalidArgument(urls, {
 				'idents' : ['x'],
 				'offset' : ['x'],
 				}, 'int()')
-			self.checkInternalError(urls, {
+			self.checkInvalidArgument(urls, {
 				'idents' : ['x'],
 				'offset' : ['0'],
 				'limit' : ['x'],
 				}, 'int()')
-			self.checkInternalError(urls, {
+			self.checkInvalidArgument(urls, {
 				'idents' : ['x'] * (api.config.api.get('max_intersection_idents', 3) + 1),
 				'offset' : ['0'],
 				'limit' : ['0'],
 				}, 'idents')
 
 		def testPack(self):
-			self.checkInternalError(pack, {}, 'ident')
-			self.checkInternalError(pack, {
+			self.checkInvalidArgument(pack, {}, 'ident')
+			self.checkInvalidArgument(pack, {
 				'ident' : []
 				}, 'ident')
-			self.checkInternalError(fuzzy_idents, {
+			self.checkInvalidArgument(fuzzy_idents, {
 				'ident' : ['x'],
 				'offset' : ['x'],
 				}, 'int()')

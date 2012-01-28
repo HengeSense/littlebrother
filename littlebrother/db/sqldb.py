@@ -222,7 +222,7 @@ class SqlDB(object):
 
 		super(SqlDB, self).__init__()
 
-		self.engine = create_engine(url, convert_unicode = True, echo = True)
+		self.engine = create_engine(url, convert_unicode = True, echo = False)
 
 		Session.configure(bind = self.engine, autocommit = autocommit)
 		self.session = Session()
