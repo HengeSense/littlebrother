@@ -1,7 +1,6 @@
 #-*- coding: UTF-8
 
 import ident.config
-import itertools
 import re
 import shelve
 

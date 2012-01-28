@@ -51,14 +51,20 @@ download: mkdirs $(PAGES)
 
 $(EXTRACTED_CITIES):
 	rm -f "${EXTRACTED_CITIES}"
-	@( for PAGE in ${PAGES}; do \
-		xsltproc --encoding "UTF-8" --html "${XSL_TEMPLATE}" "$$PAGE" >> "${EXTRACTED_CITIES}"; \
+	( for PAGE in ${PAGES}; do \
+		tidy -w 9000 -q --show-warnings no -asxml -utf8 "$$PAGE" | \
+		xsltproc --encoding "UTF-8" --html --novalid "${XSL_TEMPLATE}" - >> "${EXTRACTED_CITIES}"; \
 	done; )
 	
 extract: $(EXTRACTED_CITIES)
 
 makedb:
 	PYTHONPATH=.. python makedb.py "${EXTRACTED_CITIES}"
+
+remake:
+	rm -f $(EXTRACTED_CITIES)
+	rm -f "${DB_DIR}"/*
+	$(MAKE) extract makedb
 
 clean:
 	rm -f ${PAGES}

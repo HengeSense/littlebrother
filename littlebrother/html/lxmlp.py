@@ -33,7 +33,7 @@ def parse_file(filep, providers):
 		if node.text or node.tail:
 			for provider, tag in providers:
 				identities = provider(node.text or node.tail)
-				xpath = doc.getpath(node.text and node or node.getparent())
+				xpath = (node.text and doc.getpath(node) or doc.getpath(node.getparent()))
 
 				for identity in identities:
 					ret.append((identity, xpath, tag))
