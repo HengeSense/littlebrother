@@ -58,16 +58,14 @@
 #brolinks li {
 	padding-left: 1em;
 	list-style-type: none;
-	background-color: #f1f1f1;
 }
 
 #brolinks li:nth-child(odd) {
 	margin-top: -1px;
 	padding-top: 8px;
 	padding-bottom: 2px;
-	border-top: 1px solid lightgray;
 }
-	
+
 #brolinks li:nth-child(even) {
 	padding-bottom: 10px;
 	border-bottom: 1px solid lightgray;
