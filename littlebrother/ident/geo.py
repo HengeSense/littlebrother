@@ -30,14 +30,6 @@ city_finder = re.compile(
 	ur'(%s)(\s+%s)?' % (location_name_pattern, location_name_pattern, )
 	, re.UNICODE)
 
-simple_region_finder = re.compile(
-	ur'(%s)' % (location_name_pattern, )
-	, re.UNICODE)
-
-composite_region_finder = re.compile(
-	ur'(%s\s+[а-яё\-]+)' % (location_name_pattern, )
-	, re.UNICODE)
-
 
 def geo_key(word):
 	'''Covert word to shelve key as created by makedb.py'''
@@ -60,7 +52,7 @@ def discard_candidate(plain_text, candidate, start_pos):
 		return True
 
 	# ignore candidates at the beginning of the phrase
-	match = re.match(ur'''.*[\,\.\!\?\-\—\;\:\"\'\`\(\)\[\]]\s*(%s)''' % candidate, plain_text)
+	match = re.match(ur'''.*[,.!?\-\—;:"'`()\[\]]\s*(%s)''' % candidate, plain_text)
 	if match:
 		return True
 
@@ -96,30 +88,13 @@ def regions(plain_text):
 	'''
 
 	result = []
-	text = plain_text[:]  # FIXME: not sure about memory copying
 
-	# search for regions first
-	# if any - remove it from text to exclude misoperations during cities search
-
-	simple_candidates = simple_region_finder.findall(text)
-	composite_candidates = composite_region_finder.findall(text)
-
-	if simple_candidates or composite_candidates:
-		for candidate in itertools.chain(simple_candidates, composite_candidates):
-			key = geo_key(candidate.strip())
-
-			if key in db.regions:
-				value = geo_value(db.regions[key])
-				text = text.replace(candidate, '')
-				result.append(value)
-
-	found_cities = cities(text)
-	for city in found_cities:
+	for city in cities(plain_text):
 		key = geo_key(city)
 		region = db.world.get(r'cit-%r' % (key, ), None)
 
 		if region:
-				result.append(geo_value(region))
+				result.append(geo_value(region).upper())
 
 	return list(set(result))
 
@@ -144,10 +119,7 @@ if __name__ == '__main__':
 			testcases = (
 				(u'Пиотровский предрек Санкт-Петербургу путь Венеции', u'Санкт-Петербург'),
 				(u'который пролегает от 14 микрорайона города Зеленограда до станции метро "Митино"', u'Москва'),
-				(u'Сначала он станцевал с делегацией из Чувашии', u'Чувашия'),
-				(u'Фото с сайта УФМС России по Приморскому краю', u'Приморский край'),
 				(u'в суд обратились две воинские части МВД, расположенные в Приморском крае: во Владивостоке и селе Чугуевка', u'Приморский край'),
-				(u'расположенные в Приморском крае:', u'Приморский край'),
 				(u'во Владивостоке и селе Чугуевка', u'Приморский край'),
 			)
 
