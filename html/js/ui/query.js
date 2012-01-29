@@ -1,6 +1,5 @@
 
 var default_input_val = '';
-var current_ident = undefined;
 
 function directQuery(ident, ident_tag) {
 	$.bro.idents({
@@ -44,7 +43,7 @@ function initQueryBlock() {
 	default_input_val = input.val();
 
 	input
-		.val(current_ident || default_input_val)
+		.val(default_input_val)
 		.focus(function () {
 			if (input.val() == default_input_val) {
 				input
@@ -103,7 +102,7 @@ function initQueryBlock() {
 				$('#query_tag').val(ui.item.tag);
 			},
 		})
-		.addClass(current_ident && 'query_normal' || 'query_default')
+		.addClass(input.val() != default_input_val && 'query_normal' || 'query_default')
 		.addClass('ui-widget-content ui-widget');
 
 	var form = $('form#query_form');
