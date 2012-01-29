@@ -215,6 +215,7 @@ function fillConnections(bros) {
 	$.each(bros, function (title, args) {
 		$('<li>')
 			.attr('class', args.tag)
+			.attr('title', args.title)
 			.append($('<a>')
 				.attr('href', profileLink(args))
 				.html(args.title))
@@ -335,13 +336,15 @@ function fillUrls(urls) {
 		$('<li>')
 			.text(title || '')
 			.attr('class', 'url_title')
+			.attr('title', title || '')
 			.appendTo(replacement_ul);
 
 		$('<li>')
 			.append($('<a>')
 				.attr('href', ref)
 				.attr('class', 'url_ref')
-				.html(shortRef(ref)))
+				.html(ref))
+			.attr('title', title || '')
 			.appendTo(replacement_ul);
 	})
 

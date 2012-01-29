@@ -20,6 +20,8 @@
 
 #broconnections li {
 	list-style-type: none;
+	white-space: nowrap;
+	overflow: hidden;
 }
 
 #broconnections li a {
@@ -52,12 +54,13 @@
 
 #brolinks ul {
 	padding-left: 0;
-	width: 95%;
 }
 
 #brolinks li {
 	padding-left: 1em;
 	list-style-type: none;
+	white-space: nowrap;
+	overflow: hidden;
 }
 
 #brolinks li:nth-child(odd) {
@@ -98,7 +101,6 @@
 
 #urls_nav {
 	display: inline-block;
-	width: 64%;
 	text-align: left;
 	margin-bottom: 3px;
 }
@@ -106,11 +108,13 @@
 #connections_block {
 	float: left;
 	width: 35%;
+	position: relative;
 }
 
 #urls_block {
 	float: right;
 	width: 64%;
+	position: relative;
 }
 
 div.column_title {

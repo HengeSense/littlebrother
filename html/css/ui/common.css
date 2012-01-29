@@ -151,6 +151,16 @@ a:hover {
 	text-align: center;
 }
 
+.shader {
+	background: url(/images/gradient.png) repeat-y;
+	position: absolute;
+	width: 20px;
+	height: 100%;
+	display: block;
+	right: 0px;
+	z-index: 9000;
+}
+
 /* jquery ui fix */
 .ui-buttonset {
 	margin-right: 0;

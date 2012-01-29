@@ -111,6 +111,7 @@ function fillEntries(bros) {
 	$.each(bros, function (title, args) {
 		$('<li>')
 			.attr('class', args['tag'])
+			.attr('title', title)
 			.append($('<a>')
 				.attr('href', profileLink(args))
 				.html(title))
