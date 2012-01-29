@@ -28,7 +28,7 @@
 			+ apiString({ title : (args.pattern || '') });
 
 		if (args.tags) {
-			for (var i = 0; i < args.tags.lengh; ++i) {
+			for (var i = 0; i < args.tags.length; ++i) {
 				url += '&tags=' + args.tags[i];
 			}
 		}
