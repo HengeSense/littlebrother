@@ -1,10 +1,10 @@
 
 var default_input_val = '';
 
-function directQuery(ident, ident_tag) {
+function directQuery(ident, ident_tags) {
 	$.bro.idents({
 		pattern : ident,
-		tag : ident_tag,
+		tags : ident_tags,
 		success : function (bros) {
 			switch (dictSize(bros)) {
 			case 0:
@@ -115,7 +115,7 @@ function initQueryBlock() {
 			return false;
 		}
 
-		directQuery(input.val(), $('#query_tag').val());
+		directQuery(input.val(), [ $('#query_tag').val() ]);
 
 		return false;
 	});

@@ -27,8 +27,10 @@
 			+ '/api/?frontend=json&interface=idents&pattern='
 			+ apiString({ title : (args.pattern || '') });
 
-		if (args.tag) {
-			url += '&tag=' + args.tag;
+		if (args.tags) {
+			for (var i = 0; i < args.tags.lengh; ++i) {
+				url += '&tags=' + args.tags[i];
+			}
 		}
 
 		if (args.limit) {

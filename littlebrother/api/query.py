@@ -11,8 +11,18 @@ import itertools
 import re
 
 
-name_from_url_regex = re.compile(ur'(.*):(.*)', re.IGNORECASE | re.UNICODE)
-io_encoding = api.config.api.get('encoding', 'UTF-8')
+MAX_IDENTS = api.config.api.get('MAX_IDENTS', 5)
+MAX_CONNECTIONS = api.config.api.get('MAX_CONNECTIONS', 15)
+MAX_TAGS = api.config.api.get('MAX_TAGS', 10)
+MAX_INTERSECTION_IDENTS = api.config.api.get('MAX_INTERSECTION_IDENTS', 3)
+MAX_URLS = api.config.api.get('MAX_URLS', 15)
+MAX_CONNECTIONS_FILTER_TOKENS = api.config.api.get('MAX_CONNECTIONS_FILTER_TOKENS', 2)
+MAX_URLS_FILTER_TOKENS = api.config.api.get('max_title_filter_tokens', 5)
+MAX_PACK_LAYER1_SIZE = api.config.api.get('max_pack_layer_1_size', 15)
+MAX_PACK_LAYER2_SIZE = api.config.api.get('max_pack_layer_2_size', 30)
+
+IO_ENCODING = api.config.api.get('encoding', 'UTF-8')
+NAME_FROM_URL_REGEX = re.compile(ur'(.*):(.*)', re.IGNORECASE | re.UNICODE)
 
 
 class QueryError(Exception):
@@ -20,7 +30,7 @@ class QueryError(Exception):
 
 
 def name_from_url(string):
-	result = name_from_url_regex.search(string)
+	result = NAME_FROM_URL_REGEX.search(string)
 	if result:
 		return { 'title' : result.group(1), 'tag' : result.group(2) }
 
@@ -40,35 +50,43 @@ def idents(frontend, args):
 
 	try:
 		pattern = args.get('pattern', [None])[0]
-		tag = args.get('tag', [None])[0]
+		tags = args.get('tags', [])
 		offset = int(args.get('offset', ['0'])[0])
 		limit = int(args.get('limit', ['0'])[0])
 	except Exception, e:
 		raise QueryError('Invalid argument: ' + str(e))
 
 	if not limit:
-		limit = api.config.api.get('max_idents', 5)
+		limit = MAX_IDENTS
 
-	limit = min(limit, api.config.api.get('max_idents', 5))
+	limit = min(limit, MAX_IDENTS)
 
 	if not pattern:
 		raise QueryError("Invalid argument: 'pattern' can't be empty")
 
 	valid_pattern = (pattern
-		and api.utils.sql_escape(pattern.decode(io_encoding))
+		and api.utils.sql_escape(pattern.decode(IO_ENCODING))
 		or None)
 
 	if not api.utils.sql_valid(valid_pattern):
 		raise QueryError('Invalid argument: ' + pattern)
+
+	if len(tags) > MAX_TAGS:
+		raise QueryError("Invalid argument: 'tags' list should include not more than " + MAX_TAGS + " entries")
+
+	valid_tags = [ api.utils.sql_escape(tag) for tag in tags ]
+	for tag, original_tag in zip(valid_tags, tags):
+		if not tag or not api.utils.sql_valid(tag):
+			raise QueryError('Invalid argument: ' + original_tag)
 
 	database = db.database.get_frontend_db_ro()
 
 	db_idents = database.query(db.sqldb.Ident)\
 		.filter(db.sqldb.Ident.title.like(valid_pattern + '%'))
 
-	if tag:
+	if valid_tags:
 		db_idents = db_idents\
-			.filter(db.sqldb.Ident.tag == tag)
+			.filter(db.sqldb.Ident.tag.in_(valid_tags))
 
 	db_idents = db_idents\
 		.order_by(db.sqldb.Ident.score.desc())\
@@ -99,15 +117,15 @@ def fuzzy_idents(frontend, args):
 		raise QueryError('Invalid argument: ' + str(e))
 
 	if not limit:
-		limit = api.config.api.get('max_idents', 5)
+		limit = MAX_IDENTS
 
-	limit = min(limit, api.config.api.get('max_idents', 5))
+	limit = min(limit, MAX_IDENTS)
 
 	if not pattern:
 		raise QueryError("Invalid argument: 'pattern' can't be empty")
 
 	valid_pattern = (pattern
-		and api.utils.sql_escape(pattern.decode(io_encoding))
+		and api.utils.sql_escape(pattern.decode(IO_ENCODING))
 		or None)
 
 	if not api.utils.sql_valid(valid_pattern):
@@ -149,23 +167,22 @@ def connections(frontend, args):
 		raise QueryError('Invalid argument: ' + str(e))
 
 	if not limit:
-		limit = api.config.api.get('max_connections', 15)
+		limit = MAX_CONNECTIONS
 
-	limit = min(limit, api.config.api.get('max_connections', 15))
+	limit = min(limit, MAX_CONNECTIONS)
 
 	if not idents:
 		raise QueryError("Invalid argument: 'idents' list can not be empty")
 
-	valid_pattern = (pattern and api.utils.sql_escape(pattern.decode(io_encoding)) or None)
+	valid_pattern = (pattern and api.utils.sql_escape(pattern.decode(IO_ENCODING)) or None)
 	if pattern:
 		if not api.utils.sql_valid(valid_pattern):
 			raise QueryError('Invalid argument: ' + pattern)
 
-	max_intersection_idents = api.config.api.get('max_intersection_idents', 3)
-	if len(idents) > max_intersection_idents:
-		raise QueryError("Invalid argument: 'idents' list must include not more than " + str(max_intersection_idents) + " entries")
+	if len(idents) > MAX_INTERSECTION_IDENTS:
+		raise QueryError("Invalid argument: 'idents' list must include not more than " + str(MAX_INTERSECTION_IDENTS) + " entries")
 
-	valid_idents = [ name_from_url(api.utils.sql_escape(ident.decode(io_encoding))) for ident in idents ]
+	valid_idents = [ name_from_url(api.utils.sql_escape(ident.decode(IO_ENCODING))) for ident in idents ]
 	for ident, original_ident in zip(valid_idents, idents):
 		if not ident:
 			raise QueryError("Invalid argument: " + str(original_ident))
@@ -173,17 +190,20 @@ def connections(frontend, args):
 		if not api.utils.sql_valid(ident.get('title', u'')) or not api.utils.sql_valid(ident.get('tag', u'')):
 			raise QueryError('Invalid argument: ' + ident)
 
-	valid_tags = [ api.utils.sql_escape(tag.decode(io_encoding)) for tag in tags ]
-	for tag in valid_tags:
-		if not api.utils.sql_valid(tag):
-			raise QueryError('Invalid argument: ' + tag)
+	if len(tags) > MAX_TAGS:
+		raise QueryError("Invalid argument: 'tags' list should include not more than " + MAX_TAGS + " entries")
+
+	valid_tags = [ api.utils.sql_escape(tag.decode(IO_ENCODING)) for tag in tags ]
+	for tag, original_tag in zip(valid_tags, tags):
+		if not tag or not api.utils.sql_valid(tag):
+			raise QueryError('Invalid argument: ' + original_tag)
 
 	database = db.database.get_frontend_db_ro()
 
 	db_idents = [ get_ident(database, ident.get('title', u''), ident.get('tag', u'')) for ident in valid_idents ]
 
 	if (len(db_idents) != len(valid_idents)):
-		invalid_idents = ( ident.encode(io_encoding) for ident in valid_idents if ident not in ( ident.title for ident in db_idents ) )
+		invalid_idents = ( ident.encode(IO_ENCODING) for ident in valid_idents if ident not in ( ident.title for ident in db_idents ) )
 		raise QueryError('Invalid argument(s): ' + ', '.join(invalid_idents))
 
 	max_score = func.max(db.sqldb.Friend.score)
@@ -199,7 +219,7 @@ def connections(frontend, args):
 			.filter(db.sqldb.Friend.ident_2_tag.in_(valid_tags))
 
 	if pattern:
-		max_tokens = api.config.api.get('max_connections_filter_tokens', 2)
+		max_tokens = MAX_CONNECTIONS_FILTER_TOKENS
 		for token in valid_pattern.split(' ')[:max_tokens]:
 			db_connections = db_connections\
 				.filter(db.sqldb.Friend.ident_2_title.op('ilike')('%' + token.strip() + '%'))
@@ -217,7 +237,7 @@ def connections(frontend, args):
 
 	return frontend((
 		{
-			'title' : connection.ident_2_title.encode(io_encoding),
+			'title' : connection.ident_2_title.encode(IO_ENCODING),
 			'tag' : connection.ident_2_tag,
 			'median' : connection.median,
 			'average' : connection.average,
@@ -243,28 +263,27 @@ def urls(frontend, args):
 		raise QueryError('Invalid argument: ' + str(e))
 
 	if not limit:
-		limit = api.config.api.get('max_urls', 15)
+		limit = MAX_URLS
 
-	limit = min(limit, api.config.api.get('max_urls', 15))
+	limit = min(limit, MAX_URLS)
 
 	if not idents:
 		raise QueryError("Invalid argument: 'idents' list can not be empty")
 
-	valid_title = (title and api.utils.sql_escape(title.decode(io_encoding)) or None)
+	valid_title = (title and api.utils.sql_escape(title.decode(IO_ENCODING)) or None)
 	if title:
 		if not api.utils.sql_valid(valid_title):
 			raise QueryError('Invalid argument: ' + title)
 
-	valid_domain = (domain and api.utils.sql_escape(domain.decode(io_encoding)) or None)
+	valid_domain = (domain and api.utils.sql_escape(domain.decode(IO_ENCODING)) or None)
 	if domain:
 		if not api.utils.sql_valid(valid_domain):
 			raise QueryError('Invalid argument: ' + domain)
 
-	max_intersection_idents = api.config.api.get('max_intersection_idents', 3)
-	if len(idents) > max_intersection_idents:
-		raise QueryError("Invalid argument: 'idents' list must include not more than " + str(max_intersection_idents) + " entries")
+	if len(idents) > MAX_INTERSECTION_IDENTS:
+		raise QueryError("Invalid argument: 'idents' list must include not more than " + str(MAX_INTERSECTION_IDENTS) + " entries")
 
-	valid_idents = [ name_from_url(api.utils.sql_escape(ident.decode(io_encoding))) for ident in idents ]
+	valid_idents = [ name_from_url(api.utils.sql_escape(ident.decode(IO_ENCODING))) for ident in idents ]
 	for ident, original_ident in zip(valid_idents, idents):
 		if not ident:
 			raise QueryError("Invalid argument: " + str(original_ident))
@@ -277,7 +296,7 @@ def urls(frontend, args):
 	db_idents = [ get_ident(database, ident.get('title', u''), ident.get('tag', u'')) for ident in valid_idents ]
 
 	if (len(db_idents) != len(valid_idents)):
-		invalid_idents = ( ident.encode(io_encoding) for ident in valid_idents if ident not in ( ident.title for ident in db_idents ) )
+		invalid_idents = ( ident.encode(IO_ENCODING) for ident in valid_idents if ident not in ( ident.title for ident in db_idents ) )
 		raise QueryError('Invalid argument(s): ' + ', '.join(invalid_idents))
 
 	db_web = database.query(db.sqldb.Web.url_id)\
@@ -286,7 +305,7 @@ def urls(frontend, args):
 		.having(func.count(db.sqldb.Web.url_id) == len(db_idents))
 
 	if title:
-		max_tokens = api.config.api.get('max_title_filter_tokens', 5)
+		max_tokens = MAX_URLS_FILTER_TOKENS
 		for token in valid_title.split(' ')[:max_tokens]:
 			db_web = db_web.filter(db.sqldb.Web.url_title.op('ilike')('%' + token.strip() + '%'))
 
@@ -334,18 +353,21 @@ def pack(frontend, args):
 	if len(idents) != 1:
 		raise QueryError("Invalid argument: len of 'idents' can not be greater than 1 person")
 
-	valid_ident = name_from_url(api.utils.sql_escape(idents[0].decode(io_encoding)))
+	valid_ident = name_from_url(api.utils.sql_escape(idents[0].decode(IO_ENCODING)))
 	if not valid_ident \
 	or not api.utils.sql_valid(valid_ident.get('title', u'')) \
 	or not api.utils.sql_valid(valid_ident.get('tag', u'')):
 		raise QueryError('Invalid argument: ' + ident)
 
-	valid_tags = [ api.utils.sql_escape(tag.decode(io_encoding)) for tag in tags ]
-	for tag in valid_tags:
-		if not api.utils.sql_valid(tag):
-			raise QueryError('Invalid argument: ' + tag)
+	if len(tags) > MAX_TAGS:
+		raise QueryError("Invalid argument: 'tags' list should include not more than " + MAX_TAGS + " entries")
 
-	valid_pattern = (pattern and api.utils.sql_escape(pattern.decode(io_encoding)) or None)
+	valid_tags = [ api.utils.sql_escape(tag.decode(IO_ENCODING)) for tag in tags ]
+	for tag, original_tag in zip(valid_tags, tags):
+		if not tag or not api.utils.sql_valid(tag):
+			raise QueryError('Invalid argument: ' + original_tag)
+
+	valid_pattern = (pattern and api.utils.sql_escape(pattern.decode(IO_ENCODING)) or None)
 	if pattern:
 		if not api.utils.sql_valid(valid_pattern):
 			raise QueryError('Invalid argument: ' + pattern)
@@ -369,14 +391,14 @@ def pack(frontend, args):
 			.filter(db.sqldb.Friend.ident_2_tag.in_(valid_tags))
 
 	if pattern:
-		max_tokens = api.config.api.get('max_connections_filter_tokens', 2)
+		max_tokens = MAX_CONNECTIONS_FILTER_TOKENS
 		for token in valid_pattern.split(' ')[:max_tokens]:
 			db_connections_lv1 = db_connections_lv1\
 				.filter(db.sqldb.Friend.ident_2_title.op('ilike')('%' + token.strip() + '%'))
 
 	db_connections_lv1 = db_connections_lv1\
 		.offset(offset)\
-		.limit(api.config.api.get('max_pack_layer_1_size', 15))
+		.limit(MAX_PACK_LAYER1_SIZE)
 
 	lv1_ids = [ connection.ident_2_id for connection in db_connections_lv1 ]
 	lv2_ids = []
@@ -394,7 +416,7 @@ def pack(frontend, args):
 				.filter(db.sqldb.Friend.ident_2_tag.in_(valid_tags))
 
 		db_connections_lv2 = db_connections_lv2\
-			.limit(api.config.api.get('max_pack_layer_2_size', 30))
+			.limit(MAX_PACK_LAYER2_SIZE)
 
 		lv2_ids = [ connection.ident_2_id for connection in db_connections_lv2 ]
 
@@ -403,7 +425,7 @@ def pack(frontend, args):
 
 	return frontend((
 		{
-			'title' : ident.title.encode(io_encoding),
+			'title' : ident.title.encode(IO_ENCODING),
 			'tag' : ident.tag,
 			'score' : ident.score,
 			'level' : ident.id in lv2_ids and 2 or 1,
@@ -558,7 +580,7 @@ if __name__ == '__main__':
 				'limit' : ['x'],
 				}, 'int()')
 			self.checkInvalidArgument(connections, {
-				'idents' : ['x'] * (api.config.api.get('max_intersection_idents', 3) + 1),
+				'idents' : ['x'] * (MAX_INTERSECTION_IDENTS + 1),
 				'offset' : ['0'],
 				'limit' : ['0'],
 				}, 'idents')
@@ -578,7 +600,7 @@ if __name__ == '__main__':
 				'limit' : ['x'],
 				}, 'int()')
 			self.checkInvalidArgument(urls, {
-				'idents' : ['x'] * (api.config.api.get('max_intersection_idents', 3) + 1),
+				'idents' : ['x'] * (MAX_INTERSECTION_IDENTS + 1),
 				'offset' : ['0'],
 				'limit' : ['0'],
 				}, 'idents')
