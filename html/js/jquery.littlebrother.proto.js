@@ -151,7 +151,7 @@
 		});
 
 		if (args.pattern) {
-			url += '&pattern=' + apiString(args.pattern);
+			url += '&pattern=' + apiString({ title : args.pattern });
 		}
 
 		if (args.tags) {
