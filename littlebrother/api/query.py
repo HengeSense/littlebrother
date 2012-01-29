@@ -11,12 +11,12 @@ import itertools
 import re
 
 
-MAX_IDENTS = api.config.api.get('MAX_IDENTS', 5)
-MAX_CONNECTIONS = api.config.api.get('MAX_CONNECTIONS', 15)
-MAX_TAGS = api.config.api.get('MAX_TAGS', 10)
-MAX_INTERSECTION_IDENTS = api.config.api.get('MAX_INTERSECTION_IDENTS', 3)
-MAX_URLS = api.config.api.get('MAX_URLS', 15)
-MAX_CONNECTIONS_FILTER_TOKENS = api.config.api.get('MAX_CONNECTIONS_FILTER_TOKENS', 2)
+MAX_IDENTS = api.config.api.get('max_idens', 5)
+MAX_CONNECTIONS = api.config.api.get('max_connections', 15)
+MAX_TAGS = api.config.api.get('max_tags', 10)
+MAX_INTERSECTION_IDENTS = api.config.api.get('max_intersection_idents', 3)
+MAX_URLS = api.config.api.get('max_urls', 15)
+MAX_CONNECTIONS_FILTER_TOKENS = api.config.api.get('max_connections_filter_tokens', 2)
 MAX_URLS_FILTER_TOKENS = api.config.api.get('max_title_filter_tokens', 5)
 MAX_PACK_LAYER1_SIZE = api.config.api.get('max_pack_layer_1_size', 15)
 MAX_PACK_LAYER2_SIZE = api.config.api.get('max_pack_layer_2_size', 30)

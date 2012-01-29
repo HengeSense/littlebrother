@@ -1,4 +1,5 @@
 
+// TODO: get it from server
 var server_limits =
 {
 		max_idents : 5,
