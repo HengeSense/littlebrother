@@ -12,7 +12,7 @@
 	height: 30px;
 }
 
-#entries .names, #entries .orgs {
+#entries .names, #entries .orgs, #entries .cities, #entries .regions {
 	font-size: 2em;
 }
 

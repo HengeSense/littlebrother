@@ -28,10 +28,6 @@ a:hover {
 	text-decoration: underline;
 }
 
-.orgs a:visited {
-	color: darkgreen;
-}
-
 .names a {
 	color: #3B5998;
 	font-weight: bold;
@@ -42,8 +38,24 @@ a:hover {
 	text-decoration: underline;
 }
 
-.names a:visited {
-	color: #3B5998;
+.cities a {
+	color: darkorange;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+.cities a:hover {
+	text-decoration: underline;
+}
+
+.regions a {
+	color: darkred;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+.regions a:hover {
+	text-decoration: underline;
 }
 
 .goggles {
